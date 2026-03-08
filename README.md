@@ -52,9 +52,9 @@ Users can edit the course page and dictionary:
 
 - **Frontend:** React, Tailwind CSS
 - **Backend:** Node.js, MongoDB
-- **Authentication:** JWT, Bcrypt
+- **Authentication:** Sessions, Argon2
 - **Routing:** React Router
-- **HTTP:** Axios / Fetch API
+- **HTTP:** Fetch API
 - **CI/CD:** GitHub Actions, Docker
 
 ## User Stories
