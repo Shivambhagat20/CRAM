@@ -1,4 +1,5 @@
 const courseService = require('../services/courseServices');
+const { validationResult } = require('express-validator');
 
 exports.getAllCourses = async (req, res) => {
     try {
@@ -24,6 +25,9 @@ exports.findCourseById = async (req, res) => {
 
 exports.createCourse = async (req, res) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
         const courseData = req.body;
         const newCourse = await courseService.createCourse(courseData);
         res.status(201).json(newCourse);
@@ -39,6 +43,8 @@ exports.createCourse = async (req, res) => {
 }   
 
 exports.updateCourse = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
     const { id } = req.params;
     const courseData = req.body;    
     try {

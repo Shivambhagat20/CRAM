@@ -1,6 +1,11 @@
 const sectionService = require('../services/sectionServices');
+const { validationResult } = require('express-validator');
 
 exports.createSection = async (req, res) => {
+    //check Validator for errors in input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    
     try {
         const sectionData = req.body;
         const sessionData = req.session.user;
@@ -40,7 +45,11 @@ exports.deleteSection = async (req, res) => {
     }
 }
 
-exports.updateSection = async (req, res) => {   
+exports.updateSection = async (req, res) => {  
+    //check Validator for errors in input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
     const { id } = req.params;
     const updateData = req.body;
     const sessionData = req.session.user;
