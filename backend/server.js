@@ -5,7 +5,6 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 const session = require("express-session");
 const MongoStore = require("connect-mongo").default;
-const mongoSanitize = require("express-mongo-sanitize");
 
 //Define routes
 const userRoutes = require('./routes/userRoutes');
@@ -26,10 +25,6 @@ const app = express();
  */
 // Allows the server to accept and parse JSON data in request bodies
 app.use(express.json());
-
-//safeguard against injections 
-app.use(mongoSanitize);
-
 
 // Enables Cross-Origin Resource Sharing (allows frontend to talk to backend)
 // need to explicity set credentials true for session cookies

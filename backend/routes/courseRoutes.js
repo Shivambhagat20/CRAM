@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/courseController');
-const{registerSchema} = require('../middleware/validators/courseValidator');
+const{ registerSchema, validate } = require('../middleware/validators/courseValidator');
 
-router.post('/create',registerSchema, courseController.createCourse);
+router.post('/create', courseController.createCourse);
 router.get('/', courseController.getAllCourses);
 router.get('/sample', courseController.getSampleCourses);
 router.get('/:id', courseController.findCourseById);

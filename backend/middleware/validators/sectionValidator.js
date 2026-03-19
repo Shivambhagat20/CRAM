@@ -1,17 +1,16 @@
-const { checkSchema } = require('express-validator');
-
+const { checkSchema, validationResult } = require('express-validator');
 
 exports.registerSchema = checkSchema({
-    'section.courseCode': {
+    'courseCode': {
         optional:true,
-        isLength: 9,
+        isLength: {options: {min:9 , max:9}},
         errorMessage: 'Invalid course code length',
         matches: {
             options: [/^[a-zA-Z0-9]+$/], 
             errorMessage: 'Course code can only contain letters, numbers'
         }
     },
-    'section.title': {
+    'title': {
         optional: true, //allows this to be used to validate updates as well.
         matches: {
             options: [/^[a-zA-Z0-9_-]+$/], 
@@ -26,16 +25,29 @@ exports.registerSchema = checkSchema({
             }
         }
     },
-    'section.description':{
+    'description':{
         optional:true,
         escape:true,
         isLength: {options: {max: 10000}},
         errorMessage: 'Description looking pretty long there buddy'
     },
-    'section.body':{
+    'body':{
         optional:true,
         escape:true,
         isLength: {options: {max: 1000000}},
         errorMessage: 'body text limitted to 1 million characters'
     }
 });
+
+
+// 2. The Result Handler (MANDATORY)
+exports.validate = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ 
+            success: false, 
+            errors: errors.array() 
+        });
+    }
+    next();
+};

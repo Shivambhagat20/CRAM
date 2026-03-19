@@ -1,19 +1,18 @@
-const { checkSchema } = require('express-validator');
-
+const { checkSchema, validationResult } = require('express-validator');
 
 exports.registerSchema = checkSchema({
-    'user.email': {
+    'email': {
         optional: true, //allows this to be used to validate updates as well.
         isEmail: true,
         errorMessage: 'Invalid email format'
     },
-    'user.password': {
+    'password': {
         optional: true,
         trim: true,
         isLength: { options: { min: 8 } },
         errorMessage: 'Password too short'
     },
-    'user.user_name':{
+    'name':{
         optional:true,
         trim: true,
         isLength: { options:{min:3, max:20}},
@@ -32,3 +31,16 @@ exports.registerSchema = checkSchema({
         }
     }
 });
+
+
+// 2. The Result Handler (MANDATORY)
+exports.validate = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ 
+            success: false, 
+            errors: errors.array() 
+        });
+    }
+    next();
+};

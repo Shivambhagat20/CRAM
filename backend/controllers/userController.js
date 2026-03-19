@@ -1,5 +1,4 @@
 const userService = require('../services/userServices');
-const { validationResult } = require('express-validator');
 
 // Not implemented yet, will return all users in the database.
 exports.getAllUsers = async (req, res) => {}
@@ -25,11 +24,6 @@ exports.getUserById = async (req, res) => {
 // Should begin process of updating a user's data, should only be accessible to the user themselves, or to admins.
 // Request should be an object with the fields to update, for example: { name: 'New Name', email: 'newemail@example.com' }
 exports.updateUserById = async (req, res) => {
-
-    //check Validator for errors in input
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
 
     const { id } = req.params;
     const updateData = req.body;
@@ -62,9 +56,6 @@ exports.deleteUserById = async (req, res) => {
 // Currently returns the created user, but may want to return a success message or homepage URL.
 exports.createUser = async (req, res) => {
 
-    //check Validator for errors in input
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     try {
         const userData = req.body;

@@ -1,77 +1,99 @@
-const { checkSchema } = require('express-validator');
+const { checkSchema, validationResult } = require('express-validator');
 
-
+// 1. The Schema (Corrected Syntax)
 exports.registerSchema = checkSchema({
-    'course.title': {
-        optional: true, //allows this to be used to validate updates as well.
+    'title': {
+        optional: true,
         matches: {
-            options: [/^[a-zA-Z0-9_-]+$/], 
+            options: [/^[a-zA-Z0-9_-]+$/],
             errorMessage: 'Course Title can only contain letters, numbers, underscores, and hyphens'
         },
         custom: {
             options: (value) => {
-                if (!/[a-zA-Z]/.test(value)) {
+                if (value && !/[a-zA-Z]/.test(value)) {
                     throw new Error('Course Title must contain at least one letter');
                 }
                 return true;
             }
         }
     },
-    'course.subject': {
+    'subject': {
         optional: true,
         trim: true,
-        isLength: 4,
-        errorMessage: 'Subject invalid length',
+        isLength: {
+            options: { min: 4, max: 4 }, // Corrected: must be an object
+            errorMessage: 'Subject must be exactly 4 characters'
+        },
         matches: {
-            options: [/^[a-zA-Z]+$/], 
+            options: [/^[a-zA-Z]+$/],
             errorMessage: 'Course Subject can only contain letters'
         }
     },
-    'course.number':{
-        optional:true,
+    'number': {
+        optional: true,
         trim: true,
-        isLength: 4,
-        errorMessage: 'Number invalid length',
+        isLength: {
+            options: { min: 4, max: 4 }, // Corrected
+            errorMessage: 'Number must be exactly 4 digits'
+        },
         matches: {
-            options: [/^[0-9]+$/], 
+            options: [/^[0-9]+$/],
             errorMessage: 'Course Number can only contain numbers'
         }
     },
-    'course.courseCode':{
-        optional:true,
-        isLength: 9,
-        errorMessage: 'Invalid course code length',
+    'courseCode': {
+        optional: true,
+        isLength: {
+            options: { min: 9, max: 9 }, // Corrected
+            errorMessage: 'Invalid course code length (expected 9)'
+        },
         matches: {
-            options: [/^[a-zA-Z0-9]+$/], 
-            errorMessage: 'Course code can only contain letters, numbers'
+            options: [/^[a-zA-Z0-9]+$/],
+            errorMessage: 'Course code can only contain letters and numbers'
         }
     },
-    'course.description':{
-        optional:true,
-        escape:true,
-        isLength: {options: {max: 10000}},
-        errorMessage: 'Description looking pretty long there buddy'
-
+    'description': {
+        optional: true,
+        escape: true,
+        isLength: {
+            options: { max: 10000 },
+            errorMessage: 'Description is too long'
+        }
     },
     'course.credits': {
         optional: true,
         isInt: {
-                options: { min: 0, max: 9 }, // Limits the number to 0, 1, 2... up to 8
-                errorMessage: 'Score must be a whole number between 0 and 9'
-            },
+            options: { min: 0, max: 9 },
+            errorMessage: 'Credits must be a whole number between 0 and 9'
+        },
         toInt: true
     },
-    'course.prerequisites':{
-        optional:true,
-        escape:true,
-        isLength: {options: {max: 20}},
-        errorMessage: 'Way tooo long of a pre req string buddy'
-
+    'prerequisites': {
+        optional: true,
+        escape: true,
+        isLength: {
+            options: { max: 20 },
+            errorMessage: 'Prerequisite string is too long'
+        }
     },
-    'course.attributes':{
-        optional:true,
-        escape:true,
-        isLength: {options: {max :40}},
-        errorMessage: 'Too many chars in attributes'
+    'attributes': {
+        optional: true,
+        escape: true,
+        isLength: {
+            options: { max: 40 },
+            errorMessage: 'Too many characters in attributes'
+        }
     }
 });
+
+// 2. The Result Handler (MANDATORY)
+exports.validate = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ 
+            success: false, 
+            errors: errors.array() 
+        });
+    }
+    next();
+};
