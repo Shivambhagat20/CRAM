@@ -5,7 +5,7 @@ exports.registerSchema = checkSchema({
     'title': {
         optional: true,
         matches: {
-            options: [/^[a-zA-Z0-9_-]+$/],
+            options: [/^[a-zA-Z0-9_ -]+$/],
             errorMessage: 'Course Title can only contain letters, numbers, underscores, and hyphens'
         },
         custom: {
@@ -25,7 +25,7 @@ exports.registerSchema = checkSchema({
             errorMessage: 'Subject must be exactly 4 characters'
         },
         matches: {
-            options: [/^[a-zA-Z]+$/],
+            options: [/^[a-zA-Z ]+$/],
             errorMessage: 'Course Subject can only contain letters'
         }
     },
@@ -48,7 +48,7 @@ exports.registerSchema = checkSchema({
             errorMessage: 'Invalid course code length (expected 9)'
         },
         matches: {
-            options: [/^[a-zA-Z0-9]+$/],
+            options: [/^[a-zA-Z0-9 ]+$/],
             errorMessage: 'Course code can only contain letters and numbers'
         }
     },

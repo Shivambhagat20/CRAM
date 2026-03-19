@@ -10,31 +10,32 @@ exports.registerSchema = checkSchema({
             errorMessage: 'Course code can only contain letters, numbers'
         }
     },
-    'title': {
-        optional: true, //allows this to be used to validate updates as well.
+    'term': {
+        optional: true,
+        isLength: {options: {min:3 , max:40}},
         matches: {
             options: [/^[a-zA-Z0-9_ -]+$/], 
             errorMessage: 'Section Title can only contain letters, numbers, underscores, and hyphens'
         },
         custom: {
             options: (value) => {
-                if (!/[a-zA-Z ]/.test(value)) {
+                if (!/[a-zA-Z]/.test(value)) {
                     throw new Error('Section Title must contain at least one letter');
                 }
                 return true;
             }
         }
     },
-    'description':{
+    'definition':{
         optional:true,
         escape:true,
         isLength: {options: {max: 10000}},
         errorMessage: 'Description looking pretty long there buddy'
     },
-    'body':{
+    'example':{
         optional:true,
         escape:true,
-        isLength: {options: {max: 1000000}},
+        isLength: {options: {max: 10000}},
         errorMessage: 'body text limitted to 1 million characters'
     }
 });
