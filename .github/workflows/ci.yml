@@ -37,6 +37,9 @@ jobs:
           cd backend
           npm test
           echo "Backend tests complete"
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+        
 
   # Job 2: Frontend CI
   frontend-checks:
