@@ -32,6 +32,18 @@ exports.updateUserById = async (req, res) => {
         if (!updatedUser) {
             return res.status(404).json({ error: 'User not found' });
         }
+
+        // update session to reflect any changed fields
+        if (updateData.profilePic) {
+            req.session.user.profilePic = updateData.profilePic;
+        }
+        if (updateData.username) {
+            req.session.user.username = updateData.username;
+        }
+        if (updateData.email) {
+            req.session.user.email = updateData.email;
+        }
+
         res.status(200).json(updatedUser);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -87,7 +99,8 @@ exports.loginUser = async (req, res) => {
             id: user._id,
             email: user.email,
             username: user.user_name,
-            role: user.role
+            role: user.role,
+            profilePic: user.profile_pic,
         }
 
         return res.status(200).json(req.session.user);

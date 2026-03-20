@@ -4,6 +4,7 @@ import Course from "./pages/Course";
 import MainLayout from "./components/layout/MainLayout";
 import { TooltipProvider } from "./components/ui/tooltip";
 import StickyNavLayout from "./components/layout/StickyNavLayout";
+import Profile from "./pages/Profile";
 
 
 function App() {
@@ -23,6 +24,12 @@ function App() {
             <TooltipProvider>
               <Course />
             </TooltipProvider>
+          }
+        />
+        <Route 
+          path="/profile/:userId"
+          element={
+            <Profile />
           }
         />
       </Route>

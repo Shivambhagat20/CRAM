@@ -192,7 +192,9 @@ test('UserController - updateUserById', async (t) => {
     });
     const req = {
         params: { id: '123' },
-        body: { name: 'Updated Name', email: 'updated@example.com' }
+        body: { name: 'Updated Name', email: 'updated@example.com' },
+        session: { user: { id: '123', username: 'testuser', email: 'test@umanitoba.ca' } }
+
     };
     const res = {
         statusCode: 0,
@@ -375,7 +377,8 @@ test('UserController - loginUser - success', async (t) => {
         id: '123',
         email: 'test@umanitoba.ca',
         username: 'testuser',
-        role: 'student'
+        role: 'student',
+        profilePic: undefined,
     });
 
     // Response matches session

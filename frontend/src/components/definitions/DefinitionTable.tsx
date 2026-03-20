@@ -24,20 +24,20 @@ export default function DefinitionTable({definitions, onEdit, onDelete}: Definit
                 <TableCaption className="capitalize font-funnel font-bold">Definitions Table</TableCaption>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-1/12 sm:w-1/5">Term</TableHead>
-                        <TableHead>Definition</TableHead>
-                        <TableHead>Example</TableHead>
-                        <TableHead>Added By</TableHead>
-                        <TableHead>Updated</TableHead>
-                        <TableHead className="text-center">Actions</TableHead>
+                        <TableHead className="w-2/12">Term</TableHead>
+                        <TableHead className="w-3/12">Definition</TableHead>
+                        <TableHead className="w-4/12">Example</TableHead>
+                        <TableHead className="w-1/12">Added By</TableHead>
+                        <TableHead className="w-1/12">Updated</TableHead>
+                        <TableHead className="w-1/12 text-center">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {definitions.map((def) =>(
-                        <TableRow key={def._id}  className="break-all">
-                            <TableCell className="font-medium">{def.term}</TableCell>
-                            <TableCell>{def.definition}</TableCell>
-                            <TableCell>{def.example}</TableCell>
+                        <TableRow key={def._id}>
+                            <TableCell className="font-medium break-all whitespace-normal">{def.term}</TableCell>
+                            <TableCell className="break-all whitespace-normal">{def.definition}</TableCell>
+                            <TableCell className="break-all whitespace-normal">{def.example}</TableCell>
                             <TableCell></TableCell> 
                             <TableCell></TableCell> 
                             <TableCell className="text-right">

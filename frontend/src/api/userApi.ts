@@ -66,7 +66,7 @@ export async function getCurrentUser() {
         credentials: "include",
     });
 
-    if (!response.ok)  throw new Error("Not authenticated");
+    if (!response.ok) throw new Error("Not authenticated");
 
     return response.json();
 }
@@ -83,4 +83,64 @@ export async function logoutUser() {
         // ignore errors intentionally
         console.warn("Logout request failed, clearing client state anyway.", err);
     }
+}
+
+// Update user fields. Accepts any combination of username, email, and profilePic.
+export async function updateUser(id: string, data: {
+    username?: string;
+    email?: string;
+    profilePic?: string;
+}) {
+
+    // build the request
+    const response = await fetch(`/api/v1/user/update/${id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+
+    const body = await response.json();
+
+    // robustly throw errors
+    if (!response.ok) {
+        switch (response.status) {
+            case 401:
+                throw new Error("You must be signed-in to make changes to your account");
+            case 403:
+                throw new Error("A user may only make changes to their account");
+            case 404:
+                throw new Error(body.error);
+            default:
+                throw new Error("Something went wrong. Please try again.");
+        }
+    }
+
+    return body;
+}
+
+// Search for a user by the id. Return their full details.
+export async function getUserById(id: string) {
+    const response = await fetch(`/api/v1/user/${id}`, {
+        credentials: "include",
+    });
+
+    const body = await response.json();
+
+    if (!response.ok) {
+        switch(response.status) {
+            case 404:
+                throw new Error(body.error);
+            default:
+                throw new Error("Something went wrong. Please try again.");
+        } 
+    }
+
+    return {
+        id: body._id,
+        username: body.user_name,
+        email: body.email,
+        role: body.role.charAt(0).toUpperCase() + body.role.slice(1), // student --> Student
+        profilePic: body.profile_pic,
+    };
 }

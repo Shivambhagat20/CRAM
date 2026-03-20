@@ -3,11 +3,20 @@ const passwordServices = require('./passwordServices');
 
 exports.getUserById = async (id) => {
     const user = await userRepository.findUserById(id);
+    if (user) delete user.password_hash;
     return user;
 }
 exports.updateUserById = async (id, userData) => {
-    return await userRepository.updateUserById(id, userData);
-}
+    const updateData = { ...userData };
+    
+    // map profilePic to profile_pic to match schema
+    if (updateData.profilePic) {
+        updateData.profile_pic = updateData.profilePic;
+        delete updateData.profilePic;
+    }
+
+    return await userRepository.updateUserById(id, updateData);
+};
 exports.deleteUserById = async (id) => {
     return await userRepository.deleteUserById(id);
 }
