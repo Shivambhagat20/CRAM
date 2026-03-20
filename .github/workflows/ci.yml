@@ -39,6 +39,7 @@ jobs:
           echo "Backend tests complete"
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
+          SESSION_SECRET:  ${{ secrets.SESSION_SECRET }}
 
   # Job 2: Frontend CI
   frontend-checks:
