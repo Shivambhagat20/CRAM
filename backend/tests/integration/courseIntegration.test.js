@@ -9,6 +9,8 @@ const app = require('./app-mock')
 
 
 describe('Course Integration Tests', () => {
+    let createdCourseID;
+    
     // 1. Wait for DB to connect BEFORE any tests start
     before(async () => {
         if (mongoose.connection.readyState === 0) {
@@ -18,6 +20,7 @@ describe('Course Integration Tests', () => {
 
     // 2. Close DB connection AFTER all tests finish to let Node exit
     after(async () => {
+        
         await mongoose.connection.close();
     });
 
@@ -29,5 +32,40 @@ describe('Course Integration Tests', () => {
         
         assert.strictEqual(response.status, 200);
         assert.ok(Array.isArray(response.body));
+    });
+    test('POST /api/v1/courses/create - Create a course', async () => {
+        const newCourse = {
+            title: "Integration Test Course",
+            subject: "TEST",
+            number: "6969",
+            courseCode: "TEST 6969", // Remember: this must be unique!
+            description: "a test course, should not remain in DB for more than a second... I hope... if you see this, delete it,",
+            credits: 3,
+            prerequisites: "None",
+            attributes: "Test"
+        };
+
+        const response = await request(app).post('/api/v1/courses/create').send(newCourse);
+
+        createdCourseID = response.body._id;
+        console.log('======COURSE ID FOR TEST COURSE ============ ' + createdCourseID);
+        
+        assert.strictEqual(response.status, 201);
+        assert.strictEqual(response.body.courseCode, "TEST 6969");
+    });
+    test('PUT /api/v1/courses/update/:id - Update a course', async () => {
+         const response = await request(app)
+            .put(`/api/v1/courses/update/${createdCourseID}`)
+            .send({ title: "Updated Course Title" });
+
+        assert.strictEqual(response.status, 200);
+        assert.strictEqual(response.body.title, "Updated Course Title");
+    });
+
+    test('STEP 3: DELETE /api/v1/courses/:id (Delete)', async () => {
+        const response = await request(app)
+            .delete(`/api/v1/courses/delete/${createdCourseID}`);
+
+        assert.strictEqual(response.status, 200);
     });
 });

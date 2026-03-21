@@ -60,7 +60,7 @@ exports.registerSchema = checkSchema({
             errorMessage: 'Description is too long'
         }
     },
-    'course.credits': {
+    'credits': {
         optional: true,
         isInt: {
             options: { min: 0, max: 9 },
