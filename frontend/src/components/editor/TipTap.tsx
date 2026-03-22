@@ -12,19 +12,41 @@ export default function TipTap({
     description: string 
     onChange: (richText: string) => void
 }) {
+
+    const CustomHeading = Heading.extend({
+        renderHTML({ node, HTMLAttributes }){
+            const level = node.attrs.level
+
+            const classes: Record<number, string> = {
+                1: "text-3xl font-bold",
+                2: "text-2xl font-semibold",
+                3: "text-xl font-semibold",
+            }
+            return [
+                `h${level}`,
+                {
+                    ...HTMLAttributes,
+                    class: classes[level] || "",
+                },
+                0,
+            ]
+        },
+    })
+
     const editor = useEditor({
         extensions: [StarterKit.configure({
-
-        }), Heading.configure({
-            HTMLAttributes:{
-                class: 'text-xl font-bold',
-                levels: [2],
-            }
-        })],
+            heading:false
+            }),
+            CustomHeading, 
+        ],
         content: description,
         editorProps: {
             attributes: {
-                class: "rounded-md border min-h-[150px] border-0 input bg-background w-full max-h-[500px] overflow-y-auto"
+                class: "rounded-md min-h-[150px] bg-background w-full max-h-[500px] overflow-y-auto \
+                    [&_ul]:list-disc [&_ul]:ml-6 \
+                    [&_ol]:list-decimal [&_ol]:ml-6 \
+                    [&_li]:my-1 \
+                    [&_blockquote]:border-l-2 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-2"
             }, 
         },
         onUpdate({editor}){

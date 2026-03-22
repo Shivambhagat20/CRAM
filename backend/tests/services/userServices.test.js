@@ -123,3 +123,60 @@ test('UserService - createUser with professor email domain', async (t) => {
         role: 'professor',
     });
 });
+
+test('UserService - addContribution new entry', async (t) => {
+    const userId = '69b8d725966dd801fe90d76f';
+    const contribution = {
+        refId: '69be0aedb1bd46ee1fa27df7',
+        contributionType: 'section',
+        courseCode: 'TEST 4200'
+    };
+
+    // Simulate contributor not yet in array, push new entry
+    t.mock.method(userRepository, 'addContribution', async (id, data) => {
+        return { _id: userId, contributions: [data] };
+    });
+
+    const result = await userService.addContribution(userId, contribution);
+
+    assert.ok(result);
+});
+
+test('UserService - addContribution existing entry updates date', async (t) => {
+    const userId = '69b8d725966dd801fe90d76f';
+    const contribution = {
+        refId: '69be0aedb1bd46ee1fa27df7',
+        contributionType: 'section',
+        courseCode: 'TEST 4200'
+    };
+
+    // Simulate contributor already exists, date is updated
+    t.mock.method(userRepository, 'addContribution', async (id, data) => {
+        return { _id: userId, contributions: [{ ...data, date: new Date() }] };
+    });
+
+    const result = await userService.addContribution(userId, contribution);
+
+    assert.ok(result);
+});
+
+test('UserService - addContribution server error', async (t) => {
+    const userId = '69b8d725966dd801fe90d76f';
+    const contribution = {
+        refId: '69be0aedb1bd46ee1fa27df7',
+        contributionType: 'section',
+        courseCode: 'TEST 4200'
+    };
+
+    // Simulate database error
+    t.mock.method(userRepository, 'addContribution', async () => {
+        throw new Error('Database error');
+    });
+
+    try {
+        await userService.addContribution(userId, contribution);
+        assert.fail('Should have thrown a database error');
+    } catch (error) {
+        assert.equal(error.message, 'Database error');
+    }
+});

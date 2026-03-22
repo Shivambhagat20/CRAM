@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sectionController = require('../controllers/sectionController');
 const { requireAuth } = require('../middleware/auth');
+const { registerSchema, validate } = require('../middleware/validators/sectionValidator')
 
 
 router.get('/:courseCode', sectionController.getSectionsByCourseCode);
@@ -11,10 +12,10 @@ router.get('/:courseCode', sectionController.getSectionsByCourseCode);
 // Valid auth runs next() so request is forwarded to CRUD endpoints.
 router.use(requireAuth);
 
-router.post('/create', sectionController.createSection);
+router.post('/create',registerSchema, validate, sectionController.createSection);
 
 router.delete('/delete/:id', sectionController.deleteSection);
 
-router.put('/update/:id', sectionController.updateSection);
+router.put('/update/:id',registerSchema,validate,  sectionController.updateSection);
 
 module.exports = router;

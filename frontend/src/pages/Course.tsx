@@ -11,7 +11,7 @@ import SectionCard from "@/components/sections/SectionCard";
 import DefinitionTable from "@/components/definitions/DefinitionTable";
 import DefinitionDialog from "@/components/definitions/DefinitionDialog";
 import SectionDialog from "@/components/sections/SectionDialog";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import CourseSidebar from "@/components/layout/CourseSidebar";
 
 import type { Definition, Section } from "@/api/sectionsApi";
@@ -93,149 +93,155 @@ export default function Course() {
 
   return (
     <SidebarProvider
-      defaultOpen={false}
-      style={
-        {
-          "--sidebar-width": "20rem",
-          "--sidebar-width-mobile": "20rem",
-        } as React.CSSProperties
-      }
+      defaultOpen={true}
+      className="
+        [--sidebar-width:8rem]
+        md:[--sidebar-width:10rem]
+        lg:[--sidebar-width:12rem]
+        xl:[--sidebar-width:20rem]
+        2xl:[--sidebar-width:clamp(12rem,20vw,37rem)]
+      "
     >
       
       <CourseSidebar sections={sections} courseCode={courseCode}/>
-      <div className="flex-1 min-h-0 w-full overflow-y-auto">
-        <div className="flex flex-col items-center w-full min-w-0 gap-3 sm:max-w-xl lg:max-w-2xl xl:max-w-4xl 2xl:max-w-5xl mx-auto px-6 py-6">
+        <SidebarInset className="min-w-0 flex">
+          <div className="flex-1 flex justify-center md:justify-start">
+            <div className="w-full md:w-5/6 md:px-1  lg:w-5/6 xl:w-5/7 px-6 py-6">
 
-          {/* Course page header, this stays static, do not modify with dynamic content */}
-          <div className="w-full flex flex-col sm:gap-3 sm:flex-row items-center ">
-            <h1 className="text-xl font-bold w-4/5 pb-2 text-center sm:text-4xl">
-              Welcome to the {courseId.toUpperCase()} Course Page!
-            </h1>
-            <>
-              {/* Horizontal on small screens */}
-              <Separator
-                orientation="horizontal"
-                className="bg-secondary sm:hidden my-2"
-                />
+              {/* Course page header, this stays static, do not modify with dynamic content */}
+              <div className="w-full flex flex-col sm:gap-3 sm:flex-row items-center ">
+                <h1 className="text-xl font-bold w-4/5 pb-2 text-center sm:text-3xl xl:text-4xl">
+                  Welcome to the {courseId.toUpperCase()} Course Page!
+                </h1>
+                <>
+                  {/* Horizontal on small screens */}
+                  <Separator
+                    orientation="horizontal"
+                    className="bg-secondary sm:hidden my-2"
+                    />
 
-              {/* Vertical on small screens and up */}
-              <Separator
-                orientation="vertical"
-                className="bg-secondary hidden sm:block"
-                />
-            </>
+                  {/* Vertical on small screens and up */}
+                  <Separator
+                    orientation="vertical"
+                    className="bg-secondary hidden sm:block"
+                    />
+                </>
 
-            <div className="flex flex-col items-center gap-2 w-full text-center sm:text-left">
-              <p className=" text-base font-thin font-instrument w-full">
-                Here, you can collaborate with your classmates, find resources, and review definitions about all things {courseId.toUpperCase()}. 
-              </p>
-              
-              <p className=" text-base font-thin font-instrument w-full italic">
-                Please remember to be respectful and follow the code of conduct while using this platform. Happy learning!
-              </p>
-            </div>
-          </div>
+                <div className="flex flex-col items-center gap-2 w-full text-center sm:text-left">
+                  <p className=" text-base font-thin font-instrument w-full">
+                    Here, you can collaborate with your classmates, find resources, and review definitions about all things {courseId.toUpperCase()}. 
+                  </p>
+                  
+                  <p className=" text-base font-thin font-instrument w-full italic">
+                    Please remember to be respectful and follow the code of conduct while using this platform. Happy learning!
+                  </p>
+                </div>
+              </div>
 
-          <Separator orientation="horizontal" className="bg-secondary "/>
+              <Separator orientation="horizontal" className="bg-secondary "/>
 
-          {/* Course sections heading */}        
-          <div className="flex flex-row gap-2 w-full justify-between items-center p-2">
-            <h2 className="text-xl font-lg text-left w-full mt-4 sm:text-2xl">
-              Sections
-            </h2>
-            <HoverCard>
-                <HoverCardTrigger>             
-                    <CirclePlus 
-                      className="w-4/5 hover:text-secondary hover:cursor-pointer"
-                      aria-label="Add new section"
-                      onClick={() => {
-                        setEditSection(null);
-                        setOpenCreate(true)}}
-                        />
-                </HoverCardTrigger>
-                <HoverCardContent side="top" className="bg-background">
-                  <div className="font-instrument text-xs text-center text-foreground ">
-                    Add a new section to your course page to organize your content and discussions.
+              {/* Course sections heading */}        
+              <div className="flex flex-row gap-2 w-full justify-between items-center p-2">
+                <h2 className="text-xl font-lg text-left w-full mt-4 sm:text-2xl">
+                  Sections
+                </h2>
+                <HoverCard>
+                    <HoverCardTrigger>             
+                        <CirclePlus 
+                          className="w-4/5 hover:text-secondary hover:cursor-pointer"
+                          aria-label="Add new section"
+                          onClick={() => {
+                            setEditSection(null);
+                            setOpenCreate(true)}}
+                            />
+                    </HoverCardTrigger>
+                    <HoverCardContent side="top" className="bg-background">
+                      <div className="font-instrument text-xs text-center text-foreground ">
+                        Add a new section to your course page to organize your content and discussions.
+                      </div>
+                    </HoverCardContent>
+                </HoverCard>
+              </div>
+
+              {/* Display section dialog */}
+              <SectionDialog
+                open={openCreate}
+                onOpenChange={(open) => { 
+                  if (!open) setEditSection(null); 
+                  setOpenCreate(open); 
+                }}
+                mode={editSection ? "edit" : "create"}
+                courseCode={courseCode}
+                initialValues={editSection ?? undefined}
+                onSave={handleUpdateSection}
+              />
+
+              <Separator orientation="horizontal" className="bg-foreground my-2"/>
+
+              {/* Display sections */}
+              <div className="bg-primary p-2 rounded-2xl w-full">
+
+                {sections?.map((section) => (
+                  <div className="w-full bg-primary" id={`section-${section._id}`}>
+                    <SectionCard
+                    key={section._id}
+                    section={section}
+                    onEdit={(s) => { setEditSection(s); setOpenCreate(true); }}
+                    onDelete={handleDeleteSection}
+                    />
+                    {/* <Separator orientation="horizontal" /> */}
                   </div>
-                </HoverCardContent>
-            </HoverCard>
-          </div>
+                ))}
+              </div>
 
-          {/* Display section dialog */}
-          <SectionDialog
-            open={openCreate}
-            onOpenChange={(open) => { 
-              if (!open) setEditSection(null); 
-              setOpenCreate(open); 
-            }}
-            mode={editSection ? "edit" : "create"}
-            courseCode={courseCode}
-            initialValues={editSection ?? undefined}
-            onSave={handleUpdateSection}
-          />
+              {/* Definition table heading */}
+              <div className="flex flex-row gap-2 w-full justify-between items-center p-2" id="definitions">
+                <h2 className="text-xl font-lg text-left w-full mt-4 sm:text-2xl">
+                  Definitions
+                </h2>
+                <HoverCard>
 
-          <Separator orientation="horizontal" className="bg-foreground"/>
+                  <HoverCardTrigger>             
+                      <CirclePlus 
+                        className="w-4/5 hover:text-secondary hover:cursor-pointer"
+                        aria-label="Add new definition"
+                        onClick = {() => {
+                          setEditDefinition(null);
+                          setDefinitionOpen(true);
+                        }}
+                        />
+                  </HoverCardTrigger>
 
-          {/* Display sections */}
-          
-          {sections?.map((section) => (
-            <div className="w-full" id={`section-${section._id}`}>
-              <SectionCard
-              key={section._id}
-              section={section}
-              onEdit={(s) => { setEditSection(s); setOpenCreate(true); }}
-              onDelete={handleDeleteSection}
+                  <HoverCardContent side="top" className="bg-background">
+                    <div className="font-instrument text-xs text-center text-foreground ">
+                      Add a new definition to this course page
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
+
+              <DefinitionDialog
+                open={definitionOpen}
+                onOpenChange={setDefinitionOpen}
+                courseCode ={courseCode}
+                mode={editDefinition ? "edit" : "create"}
+                initialValues={editDefinition ?? undefined}
+                onSuccess={handleAddOrUpdateDefinition}
+              />
+
+              <Separator orientation="horizontal" />
+              
+              <DefinitionTable
+                definitions={definitions}
+                onEdit={(definition) => {
+                  setEditDefinition(definition);
+                  setDefinitionOpen(true);
+                }}
+                onDelete={handleDeleteDefinition}
               />
             </div>
-          ))}
-
-          {/* Definition table heading */}
-          <div className="flex flex-row gap-2 w-full justify-between items-center p-2" id="definitions">
-            <h2 className="text-xl font-lg text-left w-full mt-4 sm:text-2xl">
-              Definitions
-            </h2>
-            <HoverCard>
-
-              <HoverCardTrigger>             
-                  <CirclePlus 
-                    className="w-4/5 hover:text-secondary hover:cursor-pointer"
-                    aria-label="Add new definition"
-                    onClick = {() => {
-                      setEditDefinition(null);
-                      setDefinitionOpen(true);
-                    }}
-                    />
-              </HoverCardTrigger>
-
-              <HoverCardContent side="top" className="bg-background">
-                <div className="font-instrument text-xs text-center text-foreground ">
-                  Add a new definition to this course page
-                </div>
-              </HoverCardContent>
-            </HoverCard>
           </div>
-
-          <DefinitionDialog
-            open={definitionOpen}
-            onOpenChange={setDefinitionOpen}
-            courseCode ={courseCode}
-            mode={editDefinition ? "edit" : "create"}
-            initialValues={editDefinition ?? undefined}
-            onSuccess={handleAddOrUpdateDefinition}
-          />
-
-          <Separator orientation="horizontal" />
-          
-          <DefinitionTable
-            definitions={definitions}
-            onEdit={(definition) => {
-              setEditDefinition(definition);
-              setDefinitionOpen(true);
-            }}
-            onDelete={handleDeleteDefinition}
-          />
-        </div>
-      </div>
+        </SidebarInset>
     </SidebarProvider>
   );
 }

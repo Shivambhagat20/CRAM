@@ -1,3 +1,4 @@
+const User = require('../models/User');
 const userRepository = require('../repositories/userRepository');
 const passwordServices = require('./passwordServices');
 const emailServices = require('./emailServices');
@@ -5,11 +6,20 @@ const crypto = require('crypto');
 
 exports.getUserById = async (id) => {
     const user = await userRepository.findUserById(id);
+    if (user) delete user.password_hash;
     return user;
 }
 exports.updateUserById = async (id, userData) => {
-    return await userRepository.updateUserById(id, userData);
-}
+    const updateData = { ...userData };
+    
+    // map profilePic to profile_pic to match schema
+    if (updateData.profilePic) {
+        updateData.profile_pic = updateData.profilePic;
+        delete updateData.profilePic;
+    }
+
+    return await userRepository.updateUserById(id, updateData);
+};
 exports.deleteUserById = async (id) => {
     return await userRepository.deleteUserById(id);
 }
@@ -86,14 +96,14 @@ exports.loginUser = async (userData) => {
     const user = await userRepository.findUserByEmail(normalizedEmail);
 
     if (!user) {
-        throw new Error("Invalid email or password");
+        throw new Error("Invalid email");
     }
 
     // checks if passwords match
     const valid = await passwordServices.verifyPassword(password, user.password_hash);
 
     if (!valid) {
-        throw new Error("Invalid email or password");
+        throw new Error("Invalid password");
     }
 
     return user;

@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const {requireAuth, requireSelf } = require('../middleware/auth');
 
 // Import the user controller, currently only one exists, but more may be added as we implement more user-related features.
 // This one may likely only be used for fetching user data, but we will see as we implement more features like user registration, authentication, etc.
 const userController = require('../controllers/userController');
+const { registerSchema, validate } = require('../middleware/validators/userValidators');
 
 // Gets all users, currently not used, but may be useful for admin features in the future, or for testing purposes.
 // Likely will need to be protected in a release version, but for now it is open to anyone for testing purposes.
@@ -14,13 +16,13 @@ router.get('/', userController.getAllUsers);
 router.get('/search', userController.searchUsers);
 
 // Update a user's data. Should only be accessible to the user themselves, or to admins.
-router.put('/update/:id', userController.updateUserById);
+router.put('/update/:id',registerSchema, validate,  requireAuth, requireSelf, userController.updateUserById);
 
 // Delete a user, should be accessible to the user themselves, should clear out all saved data related to the user.
-router.delete('/delete/:id', userController.deleteUserById);
+router.delete('/delete/:id', requireAuth,requireSelf,userController.deleteUserById);
 
 // Create a user
-router.post('/create', userController.createUser);
+router.post('/create',registerSchema, validate, userController.createUser);
 
 // Login a user
 router.post('/login', userController.loginUser);

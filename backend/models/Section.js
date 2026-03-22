@@ -19,7 +19,6 @@ const sectionSchema = new mongoose.Schema({
             role: { type: String, required: true }
         }], required: true
     }
-
 })
 
 module.exports = mongoose.model('Section', sectionSchema); 

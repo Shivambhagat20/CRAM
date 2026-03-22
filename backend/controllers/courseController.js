@@ -24,6 +24,7 @@ exports.findCourseById = async (req, res) => {
 
 exports.createCourse = async (req, res) => {
     try {
+        
         const courseData = req.body;
         const newCourse = await courseService.createCourse(courseData);
         res.status(201).json(newCourse);
@@ -39,6 +40,8 @@ exports.createCourse = async (req, res) => {
 }   
 
 exports.updateCourse = async (req, res) => {
+   
+    
     const { id } = req.params;
     const courseData = req.body;    
     try {

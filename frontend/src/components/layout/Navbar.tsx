@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/menubar"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogOut, User } from "lucide-react";
+import { AVATAR_MAP } from "@/constants/avatars";
 
 function Navbar() {
     const [authOpen, setAuthOpen] = useState(false);
@@ -41,7 +42,7 @@ function Navbar() {
                         <MenubarMenu >
                             <MenubarTrigger className="hover:cursor-pointer">
                                 <Avatar>
-                                    <AvatarImage src="https://github.com/shadcn.png" />
+                                    <AvatarImage src={AVATAR_MAP[user?.profilePic ?? ""] ?? "https://github.com/shadcn.png"} />
                                     <AvatarFallback>{user?.username}</AvatarFallback>
                                 </Avatar>
                             </MenubarTrigger>

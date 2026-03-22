@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createUser, loginUser, getCurrentUser, logoutUser } from "./userApi";
+import { createUser, loginUser, getCurrentUser, logoutUser, updateUser, getUserById } from "./userApi";
 
 // mock the backend and test valid input and the possible errors received
 describe("createUser", () => {
@@ -232,5 +232,130 @@ describe("logoutUser", () => {
         } as unknown as Response);
 
         await expect(logoutUser()).resolves.not.toThrow();
+    });
+});
+
+// mock the backend and test valid input and the possible errors received
+describe("updateUser", () => {
+
+    beforeEach(() => {
+        vi.resetAllMocks();
+    });
+
+    const validId = "123";
+    const validPayload = { profilePic: "avatar3" };
+
+    // valid
+    it("returns body when response is ok", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue({
+            ok: true,
+            status: 200,
+            json: async () => ({ id: "123", profilePic: "avatar3" })
+        } as unknown as Response);
+
+        const result = await updateUser(validId, validPayload);
+
+        expect(result).toEqual({ id: "123", profilePic: "avatar3" });
+    });
+
+    // unauthenticated error
+    it("throws 401 error message", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue({
+            ok: false,
+            status: 401,
+            json: async () => ({ error: "Unauthorized" })
+        } as unknown as Response);
+
+        await expect(updateUser(validId, validPayload)).rejects.toThrow("You must be signed-in to make changes to your account");
+    });
+
+    // forbidden error (updating another user's account)
+    it("throws 403 forbidden error message", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue({
+            ok: false,
+            status: 403,
+            json: async () => ({ error: "Forbidden" })
+        } as unknown as Response);
+
+        await expect(updateUser(validId, validPayload)).rejects.toThrow("A user may only make changes to their account");
+    });
+
+    // user not found error
+    it("throws 404 error message from backend", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue({
+            ok: false,
+            status: 404,
+            json: async () => ({ error: "User not found" })
+        } as unknown as Response);
+
+        await expect(updateUser(validId, validPayload)).rejects.toThrow("User not found");
+    });
+
+    // server error
+    it("throws generic error for unexpected status (500)", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue({
+            ok: false,
+            status: 500,
+            json: async () => ({ error: "Internal server error" })
+        } as unknown as Response);
+
+        await expect(updateUser(validId, validPayload)).rejects.toThrow("Something went wrong. Please try again.");
+    });
+});
+
+// mock the backend and test user lookup by id with field mapping
+describe("getUserById", () => {
+
+    beforeEach(() => {
+        vi.resetAllMocks();
+    });
+
+    const validId = "123";
+
+    // valid - verify snake_case to camelCase mapping
+    it("returns mapped user object when response is ok", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue({
+            ok: true,
+            status: 200,
+            json: async () => ({
+                _id: "123",
+                user_name: "johnny",
+                email: "john@umanitoba.ca",
+                role: "student",
+                profile_pic: "avatar3"
+            })
+        } as unknown as Response);
+
+        const result = await getUserById(validId);
+
+        expect(result).toEqual({
+            id: "123",
+            username: "johnny",
+            email: "john@umanitoba.ca",
+            role: "Student",
+            profilePic: "avatar3"
+        });
+    });
+
+    // user not found error
+    it("throws 404 error message from backend", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue({
+            ok: false,
+            status: 404,
+            json: async () => ({ error: "User not found" })
+        } as unknown as Response);
+
+        await expect(getUserById(validId)).rejects.toThrow("User not found");
+    });
+
+    // server error
+    it("throws generic error for unexpected status (500)", async () => {
+        vi.spyOn(globalThis, "fetch").mockResolvedValue({
+            ok: false,
+            status: 500,
+            json: async () => ({ error: "Internal server error" })
+        } as unknown as Response);
+
+        await expect(getUserById(validId)).rejects.toThrow("Something went wrong. Please try again.");
     });
 });

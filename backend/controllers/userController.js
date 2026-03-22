@@ -24,6 +24,7 @@ exports.getUserById = async (req, res) => {
 // Should begin process of updating a user's data, should only be accessible to the user themselves, or to admins.
 // Request should be an object with the fields to update, for example: { name: 'New Name', email: 'newemail@example.com' }
 exports.updateUserById = async (req, res) => {
+
     const { id } = req.params;
     const updateData = req.body;
     try {
@@ -31,6 +32,18 @@ exports.updateUserById = async (req, res) => {
         if (!updatedUser) {
             return res.status(404).json({ error: 'User not found' });
         }
+
+        // update session to reflect any changed fields
+        if (updateData.profilePic) {
+            req.session.user.profilePic = updateData.profilePic;
+        }
+        if (updateData.username) {
+            req.session.user.username = updateData.username;
+        }
+        if (updateData.email) {
+            req.session.user.email = updateData.email;
+        }
+
         res.status(200).json(updatedUser);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -54,6 +67,8 @@ exports.deleteUserById = async (req, res) => {
 // Creates a new user, expects the request body contain: Username, Email and Password.
 // Currently returns the created user, but may want to return a success message or homepage URL.
 exports.createUser = async (req, res) => {
+
+
     try {
         const userData = req.body;
         const newUser = await userService.createUser(userData);
@@ -91,7 +106,7 @@ exports.loginUser = async (req, res) => {
         return res.status(200).json(req.session.user);
     }
     catch (error) {
-        if (error.message.includes('Invalid email or password')) {
+        if (error.message.includes('Invalid email' || 'Invalid password')) {
             return res.status(403).json({ error: error.message });
         }
         return res.status(500).json({ error: error.message });

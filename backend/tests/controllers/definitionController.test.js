@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const definitionController = require('../../controllers/definitionController');
 const definitionService = require('../../services/definitionServices');
+const userService = require('../../services/userServices');
 
 test('DefinitionController - createDefinition success', async (t) => {
     const definitionData = {
@@ -10,10 +11,15 @@ test('DefinitionController - createDefinition success', async (t) => {
         term: 'Onion',
         definition: 'This is a test definition'
     };
-    t.mock.method(definitionService, "createDefinition", async (data) => {
+    t.mock.method(definitionService, "createDefinition", async (data, sessionData) => {
         return data;
     });
-    const req = { body: definitionData };
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
+    const req = { 
+        body: definitionData,
+        session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
+    };
     const res = {
         statusCode: 0,
         body: null,
@@ -35,10 +41,15 @@ test('DefinitionController - createDefinition incomplete data', async (t) => {
     const definitionData = {
         courseCode: 'TEST 4200'
     };
-    t.mock.method(definitionService, "createDefinition", async (data) => {
+    t.mock.method(definitionService, "createDefinition", async (data, sessionData) => {
         throw new Error('Definition data is incomplete');
     });
-    const req = { body: definitionData };
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
+    const req = { 
+        body: definitionData,
+        session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
+    };
     const res = {
         statusCode: 0,
         body: null,
@@ -62,10 +73,15 @@ test('DefinitionController - createDefinition server error', async (t) => {
         term: 'Onion',
         definition: 'Test'
     };
-    t.mock.method(definitionService, "createDefinition", async (data) => {
+    t.mock.method(definitionService, "createDefinition", async (data, sessionData) => {
         throw new Error('Database error');
     });
-    const req = { body: definitionData };
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
+    const req = { 
+        body: definitionData,
+        session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
+    };
     const res = {
         statusCode: 0,
         body: null,
@@ -156,10 +172,16 @@ test('DefinitionController - getDefinitionsByCourseCode server error', async (t)
 test('DefinitionController - updateDefinition success', async (t) => {
     const updateData = { definition: 'Updated definition' };
     const updatedDef = { id: 'def123', courseCode: 'TEST 4200', definition: 'Updated definition' };
-    t.mock.method(definitionService, "updateDefinition", async (id, data) => {
+    t.mock.method(definitionService, "updateDefinition", async (id, data, sessionData) => {
         return updatedDef;
     });
-    const req = { params: { id: 'def123' }, body: updateData };
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
+    const req = { 
+        params: { id: 'def123' }, 
+        body: updateData,
+        session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
+    };
     const res = {
         statusCode: 0,
         body: null,
@@ -179,10 +201,16 @@ test('DefinitionController - updateDefinition success', async (t) => {
 
 test('DefinitionController - updateDefinition not found', async (t) => {
     const updateData = { definition: 'Updated definition' };
-    t.mock.method(definitionService, "updateDefinition", async (id, data) => {
+    t.mock.method(definitionService, "updateDefinition", async (id, data, sessionData) => {
         throw new Error('Definition not found');
     });
-    const req = { params: { id: 'nonexistent' }, body: updateData };
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
+    const req = { 
+        params: { id: 'nonexistent' }, 
+        body: updateData,
+        session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
+    };
     const res = {
         statusCode: 0,
         body: null,
@@ -202,10 +230,16 @@ test('DefinitionController - updateDefinition not found', async (t) => {
 
 test('DefinitionController - updateDefinition incomplete data', async (t) => {
     const updateData = {};
-    t.mock.method(definitionService, "updateDefinition", async (id, data) => {
+    t.mock.method(definitionService, "updateDefinition", async (id, data, sessionData) => {
         throw new Error('Update data is incomplete');
     });
-    const req = { params: { id: 'def123' }, body: updateData };
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
+    const req = { 
+        params: { id: 'def123' }, 
+        body: updateData,
+        session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
+    };
     const res = {
         statusCode: 0,
         body: null,
@@ -225,10 +259,16 @@ test('DefinitionController - updateDefinition incomplete data', async (t) => {
 
 test('DefinitionController - updateDefinition server error', async (t) => {
     const updateData = { definition: 'Updated' };
-    t.mock.method(definitionService, "updateDefinition", async (id, data) => {
+    t.mock.method(definitionService, "updateDefinition", async (id, data, sessionData) => {
         throw new Error('Database error');
     });
-    const req = { params: { id: 'def123' }, body: updateData };
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
+    const req = { 
+        params: { id: 'def123' }, 
+        body: updateData,
+        session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
+    };
     const res = {
         statusCode: 0,
         body: null,
