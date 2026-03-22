@@ -31,6 +31,17 @@ router.get('/me', userController.checkSession);
 // Logout a user
 router.post('/logout', userController.logoutUser);
 
+// --- Email Verification & Password Reset Routes ---
+
+// Verify a user's email with a 6-digit code (Public)
+router.post('/verify-email', userController.verifyEmail);
+
+// Request a password reset email (Public)
+router.post('/forgot-password', userController.forgotPassword);
+
+// Reset password using the emailed token (Public)
+router.post('/reset-password', userController.resetPassword);
+
 // Gets a user by id, currently returns the user document if found, or null if no user with the given id was found.
 // May be useful for fetching user data to display on the frontend, for example profile page, or for admin features in the future.
 router.get('/:id', userController.getUserById); // put at end since it's a dynamic route

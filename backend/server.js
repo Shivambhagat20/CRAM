@@ -1,5 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
+// Load env vars MUST BE FIRST
+dotenv.config();
 const cors = require('cors');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
@@ -12,8 +14,7 @@ const courseRoutes = require('./routes/courseRoutes');
 const sectionRoutes = require('./routes/sectionRoutes');
 const definitionRoutes = require('./routes/definitionRoutes');
 
-// Load env vars
-dotenv.config();
+// Env variables already loaded above
 
 // Establishes connection to MongoDB Atlas
 connectDB();

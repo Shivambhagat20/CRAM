@@ -1,11 +1,11 @@
 const userService = require('../services/userServices');
 
 // Not implemented yet, will return all users in the database.
-exports.getAllUsers = async (req, res) => {}
+exports.getAllUsers = async (req, res) => { }
 
 // Not implemented yet, will return users that match the search query in the request body.
 // Not sure of use cases, but it be useful for any features revolving around searching for users.
-exports.searchUsers = async (req, res) => {}
+exports.searchUsers = async (req, res) => { }
 
 // Gets a user, sends the data to the browser, if the user is not found, sends a 404 error, if there is an error with the database, sends a 500 error.
 exports.getUserById = async (req, res) => {
@@ -42,7 +42,7 @@ exports.updateUserById = async (req, res) => {
 exports.deleteUserById = async (req, res) => {
     const { id } = req.params;
     try {
-        const deletedUser = await userService.deleteUserById(id);   
+        const deletedUser = await userService.deleteUserById(id);
         if (!deletedUser) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -60,18 +60,18 @@ exports.createUser = async (req, res) => {
         res.status(201).json(newUser);
     }
     catch (error) {
-        if(error.message.includes('already exists')) {
+        if (error.message.includes('already exists')) {
             res.status(409).json({ error: error.message });
         }
-        else if(error.message.includes('not allowed')) {
+        else if (error.message.includes('not allowed')) {
             res.status(403).json({ error: error.message });
         }
-        else if(error.message.includes('incomplete')) {
+        else if (error.message.includes('incomplete')) {
             res.status(422).json({ error: error.message });
         }
         else res.status(500).json({ error: error.message });
     }
-} 
+}
 
 // login a user, expects the request body contain: Username, Email and Password.
 exports.loginUser = async (req, res) => {
@@ -84,7 +84,8 @@ exports.loginUser = async (req, res) => {
             id: user._id,
             email: user.email,
             username: user.user_name,
-            role: user.role
+            role: user.role,
+            is_verified: user.is_verified
         }
 
         return res.status(200).json(req.session.user);
@@ -121,4 +122,61 @@ exports.logoutUser = (req, res) => {
         res.clearCookie("connect.sid");
         return res.status(200).json({ message: "Logged out successfully" });
     });
+};
+
+// Verifies the user's email with the 6-digit code sent during signup
+exports.verifyEmail = async (req, res) => {
+    try {
+        const { email, code } = req.body;
+        if (!email || !code) {
+            return res.status(400).json({ error: "Email and code are required" });
+        }
+
+        await userService.verifyEmailCode(email, code);
+
+        // If the user is currently logged in, update their session
+        if (req.session && req.session.user && req.session.user.email === email) {
+            req.session.user.is_verified = true;
+        }
+
+        res.status(200).json({ message: "Email verified successfully" });
+    } catch (error) {
+        if (error.message.includes("Invalid")) {
+            return res.status(400).json({ error: error.message });
+        }
+        res.status(500).json({ error: "Failed to verify email: " + error.message });
+    }
+}
+
+// Start password reset process (generates token and sends email)
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ error: "Email is required" });
+        }
+
+        await userService.requestPasswordReset(email);
+
+        // Always return 200, even if email doesn't exist, to prevent enumeration
+        res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to process password reset request" });
+    }
+}
+
+// Reset password using the token sent via email
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        await userService.resetPasswordWithToken(token, newPassword);
+
+        res.status(200).json({ message: "Password reset successfully" });
+    } catch (error) {
+        if (error.message.includes("Invalid or expired") || error.message.includes("expired") || error.message.includes("required")) {
+            return res.status(400).json({ error: error.message });
+        }
+        res.status(500).json({ error: "Failed to reset password" });
+    }
 };
