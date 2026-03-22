@@ -31,9 +31,9 @@ exports.deleteDefinition = async (id) => {
     }
 }
 
-exports.updateDefinition = async (id, updateData) => {
-    
-    const updatedDefinition = await definitionRepositoy.updateDefinition(id, updateData);
+exports.updateDefinition = async (id, updateData, sessionData) => {
+
+    const updatedDefinition = await definitionRepository.updateDefinition(id, updateData, sessionData);
     if (!updatedDefinition) {
         throw new Error('Definition not found');
     }

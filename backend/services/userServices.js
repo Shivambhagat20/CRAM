@@ -11,7 +11,7 @@ exports.getUserById = async (id) => {
 }
 exports.updateUserById = async (id, userData) => {
     const updateData = { ...userData };
-    
+
     // map profilePic to profile_pic to match schema
     if (updateData.profilePic) {
         updateData.profile_pic = updateData.profilePic;
@@ -191,4 +191,8 @@ exports.resetPasswordWithToken = async (token, newPassword) => {
     await userRepository.clearResetToken(user._id);
 
     return true;
+}
+
+exports.addContribution = async (id, data) => {
+    return await userRepository.addContribution(id, data);
 }

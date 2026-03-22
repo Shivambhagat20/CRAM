@@ -24,7 +24,15 @@ const userSchema = new mongoose.Schema({
     },
     reset_token_expiry: {
         type: Date, required: false
-    }
+    },
+    contributions: [
+        {
+            refId: { type: mongoose.Schema.Types.ObjectId, required: true },
+            contributionType: { type: String, enum: ['section', 'definition'], required: true },
+            courseCode: { type: String, required: true },
+            date: { type: Date, default: Date.now }
+        }
+    ]
 }
 );
 

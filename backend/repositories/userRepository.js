@@ -70,3 +70,21 @@ exports.clearResetToken = async (id) => {
         { new: true }
     ).lean();
 }
+
+exports.addContribution = async (id, data) => {
+    const user = await User.findById(id);
+    if (!user) throw new Error('User not found');
+
+    const existingIndex = user.contributions.findIndex(
+        c => c.refId.toString() === data.refId.toString() && c.contributionType === data.contributionType
+    );
+
+    if (existingIndex > -1) {
+        user.contributions[existingIndex].date = new Date();
+    } else {
+        user.contributions.push(data);
+    }
+
+    await user.save();
+    return user.toJSON();
+}

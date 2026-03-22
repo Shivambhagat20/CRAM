@@ -6,106 +6,106 @@ const userService = require('../../services/userServices');
 test('UserController - createUser', async (t) => {
     // Mock user data
     const userData1 = {
-        id: 'testuser123', 
+        id: 'testuser123',
         userName: 'testuser',
         passwordHash: 'hashedpassword',
         email: 'onion@example.com',
         role: null,
-        setRole: function(role) {
+        setRole: function (role) {
             this.role = role;
         }
     };
     const userData2 = {
-        id: 'testuser456', 
+        id: 'testuser456',
         userName: 'testuser2',
         passwordHash: 'hashedpassword2',
         email: 'onion@myumanitoba.ca',
         role: null,
-        setRole: function(role) {
+        setRole: function (role) {
             this.role = role;
         }
     };
     const userData3 = {
-        id: 'testuser789', 
+        id: 'testuser789',
         userName: 'testuser3',
         passwordHash: 'hashedpassword3',
         email: 'onion@umanitoba.ca',
         role: null,
-        setRole: function(role) {
+        setRole: function (role) {
             this.role = role;
         }
     };
     t.mock.method(userService, 'createUser', async (data) => {
-        const {email} = data;
+        const { email } = data;
         if (email.endsWith('@umanitoba.ca')) {
             data.setRole('professor');
             return data;
-        }else if (email.endsWith('@myumanitoba.ca')) {
+        } else if (email.endsWith('@myumanitoba.ca')) {
             data.setRole('student');
             return data;
         }
-        else{
+        else {
             throw new Error('Email domain is not allowed');
         }
-        });
-        const req1 = { body: userData1 };
-        const req2 = { body: userData2 };
-        const req3 = { body: userData3 };
-        res = {
-            statusCode: 0,
-            body: null,
-            status: function(statusCode) {
-                this.statusCode = statusCode;
-                return this;
-            },
-            json: function(data) {
-                this.body = data;
-                return this;
-            }
-        };
-        await userController.createUser(req1, res);
-        assert.strictEqual(res.statusCode, 403);
-        assert.deepStrictEqual(res.body, { error: 'Email domain is not allowed' });
-        await userController.createUser(req2, res);
-        assert.strictEqual(res.statusCode, 201);
-        assert.deepStrictEqual(res.body, { ...userData2, role: 'student' });
-        await userController.createUser(req3, res);
-        assert.strictEqual(res.statusCode, 201);
-        assert.deepStrictEqual(res.body, { ...userData3, role: 'professor' });
+    });
+    const req1 = { body: userData1 };
+    const req2 = { body: userData2 };
+    const req3 = { body: userData3 };
+    res = {
+        statusCode: 0,
+        body: null,
+        status: function (statusCode) {
+            this.statusCode = statusCode;
+            return this;
+        },
+        json: function (data) {
+            this.body = data;
+            return this;
+        }
+    };
+    await userController.createUser(req1, res);
+    assert.strictEqual(res.statusCode, 403);
+    assert.deepStrictEqual(res.body, { error: 'Email domain is not allowed' });
+    await userController.createUser(req2, res);
+    assert.strictEqual(res.statusCode, 201);
+    assert.deepStrictEqual(res.body, { ...userData2, role: 'student' });
+    await userController.createUser(req3, res);
+    assert.strictEqual(res.statusCode, 201);
+    assert.deepStrictEqual(res.body, { ...userData3, role: 'professor' });
 
 
 });
 test('UserController - createUser - duplicate email', async (t) => {
-    
+
     t.mock.method(userService, 'createUser', async (data) => {
         throw new Error('User with this email already exists');
     });
     const req = {
         body: {
-            id: '123', 
-            name: 'Onion', 
+            id: '123',
+            name: 'Onion',
             email: 'onion@example.com'
         }
-    };  
+    };
     const res = {
         statusCode: 0,
         body: null,
         status(code) {
-        this.statusCode = code;
-        return this; 
+            this.statusCode = code;
+            return this;
         }
         ,
         json(data) {
-        this.body = data;
-        return this;
-        }   
+            this.body = data;
+            return this;
+        }
     };
     await userController.createUser(req, res);
     assert.strictEqual(res.statusCode, 409);
     assert.deepStrictEqual(res.body, { error: 'User with this email already exists' });
 });
 test('UserController - getUserById', async (t) => {
-    
+
     t.mock.method(userService, 'getUserById', async () => {
         return { id: '123', name: 'Misha', email: 'onion@example.com' };
     });
@@ -114,17 +114,17 @@ test('UserController - getUserById', async (t) => {
         params: { id: '123' }
     };
 
- 
+
     const res = {
         statusCode: 0,
         body: null,
         status(code) {
-        this.statusCode = code;
-        return this; 
+            this.statusCode = code;
+            return this;
         },
         json(data) {
-        this.body = data;
-        return this;
+            this.body = data;
+            return this;
         }
     };
     await userController.getUserById(req, res);
@@ -133,9 +133,9 @@ test('UserController - getUserById', async (t) => {
 });
 
 test('UserController - getUserById - user not found', async (t) => {
-    
+
     t.mock.method(userService, 'getUserById', async () => {
-        return null; 
+        return null;
     });
     const req = {
         params: { id: '123' }
@@ -144,20 +144,20 @@ test('UserController - getUserById - user not found', async (t) => {
         statusCode: 0,
         body: null,
         status(code) {
-        this.statusCode = code;
-        return this; 
+            this.statusCode = code;
+            return this;
         },
         json(data) {
-        this.body = data;
-        return this;
+            this.body = data;
+            return this;
         }
     };
     await userController.getUserById(req, res);
     assert.strictEqual(res.statusCode, 404);
     assert.deepStrictEqual(res.body, { error: 'User not found' });
-}); 
+});
 test('UserController - getUserById - server error', async (t) => {
-    
+
     t.mock.method(userService, 'getUserById', async () => {
         throw new Error('Database error');
     });
@@ -167,15 +167,15 @@ test('UserController - getUserById - server error', async (t) => {
     const res = {
         statusCode: 0,
         body: null,
-        status(code) { 
-        this.statusCode = code;
-        return this; 
+        status(code) {
+            this.statusCode = code;
+            return this;
         }
         ,
         json(data) {
-        this.body = data;
-        return this;
-        }  
+            this.body = data;
+            return this;
+        }
     };
     await userController.getUserById(req, res);
     assert.strictEqual(res.statusCode, 500);
@@ -185,7 +185,7 @@ test('UserController - getUserById - server error', async (t) => {
 test('UserController - updateUserById', async (t) => {
     t.mock.method(userService, 'updateUserById', async (id, data) => {
         if (id === '123') {
-            return { id: '123', ...data }; 
+            return { id: '123', ...data };
         } else {
             return null;
         }
@@ -215,7 +215,7 @@ test('UserController - updateUserById', async (t) => {
 
 test('UserController - updateUserById - user not found', async (t) => {
     t.mock.method(userService, 'updateUserById', async (id, data) => {
-        return null; 
+        return null;
     });
     const req = {
         params: { id: '123' },
@@ -240,14 +240,14 @@ test('UserController - updateUserById - user not found', async (t) => {
 test('UserController - updateUserById - server error', async (t) => {
     t.mock.method(userService, 'updateUserById', async (id, data) => {
         throw new Error('Database error');
-    }   );
+    });
     const req = {
         params: { id: '123' },
         body: { name: 'Updated Name', email: 'onion@example.com' }
-    }; 
+    };
     const res = {
         statusCode: 0,
-        body: null, 
+        body: null,
         status(code) {
             this.statusCode = code;
             return this;
@@ -271,7 +271,7 @@ test('UserController - deleteUserById', async (t) => {
     });
     const req = {
         params: { id: '123' }
-    };  
+    };
     const res = {
         statusCode: 0,
         body: null,
@@ -290,11 +290,11 @@ test('UserController - deleteUserById', async (t) => {
 });
 test('UserController - deleteUserById - user not found', async (t) => {
     t.mock.method(userService, 'deleteUserById', async (id) => {
-        return null; 
+        return null;
     });
     const req = {
         params: { id: '123' }
-    };  
+    };
     const res = {
         statusCode: 0,
         body: null,
@@ -312,7 +312,7 @@ test('UserController - deleteUserById - user not found', async (t) => {
     assert.deepStrictEqual(res.body, { error: 'User not found' });
 });
 test('UserController - deleteUserById - server error', async (t) => {
-    t.mock.method(userService, 'deleteUserById', async (id) => {   
+    t.mock.method(userService, 'deleteUserById', async (id) => {
         throw new Error('Database error');
     });
     const req = {
@@ -378,7 +378,7 @@ test('UserController - loginUser - success', async (t) => {
         email: 'test@umanitoba.ca',
         username: 'testuser',
         role: 'student',
-        profilePic: undefined,
+        is_verified: undefined
     });
 
     // Response matches session
@@ -572,7 +572,7 @@ test('UserController - logoutUser - no session', async () => {
             this.body = data;
             return this;
         },
-        clearCookie() {}
+        clearCookie() { }
     };
 
     userController.logoutUser(req, res);
@@ -602,7 +602,7 @@ test('UserController - logoutUser - destroy failure', async () => {
             this.body = data;
             return this;
         },
-        clearCookie() {}
+        clearCookie() { }
     };
 
     userController.logoutUser(req, res);

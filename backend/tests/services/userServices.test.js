@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const userRepository = require('../../repositories/userRepository');
 const userService = require('../../services/userServices');
 const passwordServices = require('../../services/passwordServices');
+const emailServices = require('../../services/emailServices');
 
 test('UserService - createUser', async (t) => {
     // Mock user data
@@ -23,6 +24,9 @@ test('UserService - createUser', async (t) => {
         return null;
     });
 
+    // Mock sendEmail so it doesn't crash in CI
+    t.mock.method(emailServices, 'sendEmail', async () => { });
+
     // Simulate successful user creation
     t.mock.method(userRepository, 'createUser', async (data) => {
         return data;
@@ -30,15 +34,15 @@ test('UserService - createUser', async (t) => {
 
     const createdUser = await userService.createUser(userData);
 
-    assert.deepStrictEqual(createdUser, {
-        user_name: 'testuser2',
-        email: 'test@myumanitoba.ca',
-        password_hash: 'mocked_hash',
-        role: 'student',
-    });
+    assert.strictEqual(createdUser.user_name, 'testuser2');
+    assert.strictEqual(createdUser.email, 'test@myumanitoba.ca');
+    assert.strictEqual(createdUser.password_hash, 'mocked_hash');
+    assert.strictEqual(createdUser.role, 'student');
+    assert.strictEqual(createdUser.is_verified, false);
+    assert.match(createdUser.verification_code, /^\d{6}$/);
 });
 
-test('UserService - createUser with invalid email domain', async (t) => {   
+test('UserService - createUser with invalid email domain', async (t) => {
     // Mock user data with invalid email domain
     const userData = {
         name: 'testuser2',
@@ -72,7 +76,7 @@ test('UserService - createUser with incomplete data', async (t) => {
 
 test('UserService - createUser with existing email', async (t) => {
     // Mock user data
-    const userData = {  
+    const userData = {
         name: 'testuser2',
         email: 'test@myumanitoba.ca',
         password: 'plaintext123',
@@ -88,12 +92,12 @@ test('UserService - createUser with existing email', async (t) => {
         assert.fail('Should have thrown an error for existing email');
     } catch (error) {
         assert.equal(error.message.includes('already exists'), true);
-    } 
+    }
 });
 
 test('UserService - createUser with professor email domain', async (t) => {
     // Mock user data with professor email domain
-    const userData = {      
+    const userData = {
         name: 'testuser3',
         email: 'proftest@umanitoba.ca',
         password: 'plaintext123',
@@ -109,6 +113,9 @@ test('UserService - createUser with professor email domain', async (t) => {
         return null;
     });
 
+    // Mock sendEmail so it doesn't crash in CI
+    t.mock.method(emailServices, 'sendEmail', async () => { });
+
     // Simulate successful user creation
     t.mock.method(userRepository, 'createUser', async (data) => {
         return data;
@@ -116,12 +123,12 @@ test('UserService - createUser with professor email domain', async (t) => {
 
     const createdUser = await userService.createUser(userData);
 
-    assert.deepStrictEqual(createdUser, {
-        user_name: 'testuser3',
-        email: 'proftest@umanitoba.ca',
-        password_hash: 'mocked_hash',
-        role: 'professor',
-    });
+    assert.strictEqual(createdUser.user_name, 'testuser3');
+    assert.strictEqual(createdUser.email, 'proftest@umanitoba.ca');
+    assert.strictEqual(createdUser.password_hash, 'mocked_hash');
+    assert.strictEqual(createdUser.role, 'professor');
+    assert.strictEqual(createdUser.is_verified, false);
+    assert.match(createdUser.verification_code, /^\d{6}$/);
 });
 
 test('UserService - addContribution new entry', async (t) => {
