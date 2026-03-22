@@ -64,7 +64,6 @@ exports.deleteUserById = async (req, res) => {
                 }
 
                 res.clearCookie("connect.sid");
-                return res.status(200).json({ message: "Logged out successfully" });
             });
         }
 
