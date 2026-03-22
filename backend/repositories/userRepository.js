@@ -30,3 +30,39 @@ exports.createUser = async (userData) => {
     await user.save();
     return user.toJSON();
 }
+
+// update user's contribution
+// if contribution exists, update its date
+// if a new contribution, add it to the array
+exports.addContribution = async (userId, { refId, contributionType, courseCode }) => {
+    // first try to update the date if contribution exists
+    const existing = await User.findOneAndUpdate(
+        {_id: userId, "contributions.ref_id": refId },
+        {
+            $set: {
+                "contributions.$.date": new Date()
+            }
+        },
+        { new: true }
+    ).lean();
+
+    // if no match (contribution not in array yet), push a new entry
+    if (!existing) {
+        return await User.findByIdAndUpdate(
+            userId,
+            {
+                $push: {
+                    contributions: {
+                        ref_id: refId,
+                        type: contributionType,
+                        course_code: courseCode,
+                        date: new Date()
+                    }
+                }
+            },
+            { new: true }
+        ).lean();
+    }
+
+    return existing;
+};
