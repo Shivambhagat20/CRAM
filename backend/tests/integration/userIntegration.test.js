@@ -63,8 +63,14 @@ describe('User Integration Tests', () => {
     });
 
     test('DELETE /api/v1/user/:id (Delete)', async () => {
+        const loginRes = await request(app)
+            .post('/api/v1/user/login') 
+            .send({ email: 'integrationtest@myumanitoba.ca', password: 'integrationTestTabarnak' });
+
+   
+        authCookie = loginRes.headers['set-cookie']; 
         const response = await request(app)
-            .delete(`/api/v1/user/delete/${createdUserID}`);
+            .delete(`/api/v1/user/delete/${createdUserID}`).set('Cookie', authCookie);;
 
         assert.strictEqual(response.status, 200);
     });

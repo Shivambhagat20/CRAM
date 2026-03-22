@@ -19,7 +19,7 @@ router.get('/search', userController.searchUsers);
 router.put('/update/:id',registerSchema, validate,  requireAuth, requireSelf, userController.updateUserById);
 
 // Delete a user, should be accessible to the user themselves, should clear out all saved data related to the user.
-router.delete('/delete/:id', userController.deleteUserById);
+router.delete('/delete/:id', requireAuth,requireAuth,userController.deleteUserById);
 
 // Create a user
 router.post('/create',registerSchema, validate, userController.createUser);

@@ -55,6 +55,19 @@ exports.updateUserById = async (req, res) => {
 exports.deleteUserById = async (req, res) => {
     const { id } = req.params;
     try {
+        
+        //logout the user
+        if(req.session){
+            req.session.destroy((err) => {
+                if (err) {
+                    return res.status(500).json({ error: "Failed to logout" });
+                }
+
+                res.clearCookie("connect.sid");
+                return res.status(200).json({ message: "Logged out successfully" });
+            });
+        }
+
         const deletedUser = await userService.deleteUserById(id);   
         if (!deletedUser) {
             return res.status(404).json({ error: 'User not found' });
