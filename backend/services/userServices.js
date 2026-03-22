@@ -1,3 +1,4 @@
+const User = require('../models/User');
 const userRepository = require('../repositories/userRepository');
 const passwordServices = require('./passwordServices');
 
@@ -84,3 +85,7 @@ exports.loginUser = async (userData) => {
 
     return user;
 }
+
+exports.addContribution = async (userId, { refId, contributionType, courseCode }) => {
+    return await userRepository.addContribution(userId, {refId, contributionType, courseCode});
+};

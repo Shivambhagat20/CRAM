@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const sectionController = require('../../controllers/sectionController');
 const sectionService = require('../../services/sectionServices');
+const userService = require('../../services/userServices');
 
 test('SectionController - createSection success', async (t) => {
     const sectionData = {
@@ -11,6 +12,8 @@ test('SectionController - createSection success', async (t) => {
     t.mock.method(sectionService, "createSection", async (data, sessionData) => {
         return data;
     });
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
     const req = { 
         body: sectionData,
         session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
@@ -39,6 +42,8 @@ test('SectionController - createSection incomplete data', async (t) => {
     t.mock.method(sectionService, "createSection", async (data, sessionData) => {
         throw new Error('Section data is incomplete');
     });
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
     const req = { 
         body: sectionData,
         session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
@@ -68,6 +73,8 @@ test('SectionController - createSection duplicate section', async (t) => {
     t.mock.method(sectionService, "createSection", async (data, sessionData) => {
         throw new Error('Section with this number already exists');
     });
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
     const req = { 
         body: sectionData,
         session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
@@ -96,6 +103,8 @@ test('SectionController - createSection server error', async (t) => {
     t.mock.method(sectionService, "createSection", async (data, sessionData) => {
         throw new Error('Database error');
     });
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
     const req = { 
         body: sectionData,
         session: { user: { id: '69b8d725966dd801fe90d76f', role: 'student' } }
@@ -193,6 +202,8 @@ test('SectionController - updateSection success', async (t) => {
     t.mock.method(sectionService, "updateSection", async (id, data, sessionData) => {
         return updatedSection;
     });
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
     const req = { 
         params: { id: 'section123' }, 
         body: updateData,
@@ -220,6 +231,8 @@ test('SectionController - updateSection not found', async (t) => {
     t.mock.method(sectionService, "updateSection", async (id, data, sessionData) => {
         return null;
     });
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
     const req = { 
         params: { id: 'nonexistent' }, 
         body: updateData,
@@ -247,6 +260,8 @@ test('SectionController - updateSection server error', async (t) => {
     t.mock.method(sectionService, "updateSection", async (id, data, sessionData) => {
         throw new Error('Database error');
     });
+    // mock addContribution so it doesn't hit the database
+    t.mock.method(userService, "addContribution", async () => {});
     const req = { 
         params: { id: 'section123' }, 
         body: updateData,
