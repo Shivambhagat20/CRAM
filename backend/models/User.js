@@ -1,3 +1,4 @@
+// CI VERIFICATION MARKER: PUSH AT 13:58
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({

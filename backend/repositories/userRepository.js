@@ -1,3 +1,4 @@
+// CI VERIFICATION MARKER: PUSH AT 13:58
 const User = require('../models/User');
 
 
@@ -24,10 +25,10 @@ exports.updateUserById = async (id, userData) => {
 exports.setPendingEmail = async (id, email, code) => {
     return await User.findByIdAndUpdate(
         id,
-        { 
-            pending_email: email, 
+        {
+            pending_email: email,
             verification_code: code,
-            is_verified: false 
+            is_verified: false
         },
         { new: true }
     ).lean();
@@ -67,17 +68,17 @@ exports.verifyUser = async (email) => {
 // reset the pending email and verification code
 exports.confirmEmailChange = async (id) => {
     const user = await User.findById(id).lean();
-    
+
     return await User.findByIdAndUpdate(
         id,
         {
-            $set: { 
+            $set: {
                 email: user.pending_email,
-                is_verified: true 
+                is_verified: true
             },
-            $unset: { 
-                pending_email: 1, 
-                verification_code: 1 
+            $unset: {
+                pending_email: 1,
+                verification_code: 1
             }
         },
         { new: true }
@@ -112,7 +113,7 @@ exports.clearResetToken = async (id) => {
 exports.addContribution = async (userId, { refId, contributionType, courseCode }) => {
     // first try to update the date if contribution exists
     const existing = await User.findOneAndUpdate(
-        {_id: userId, "contributions.ref_id": refId },
+        { _id: userId, "contributions.ref_id": refId },
         {
             $set: {
                 "contributions.$.date": new Date()

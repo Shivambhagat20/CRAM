@@ -1,0 +1,506 @@
+﻿TAP version 13
+# Subtest: CourseController - createCourse
+ok 1 - CourseController - createCourse
+  ---
+  duration_ms: 1.9794
+  ...
+# Subtest: CourseController - createCourse with incomplete data
+ok 2 - CourseController - createCourse with incomplete data
+  ---
+  duration_ms: 0.5494
+  ...
+# Subtest: CourseController - createCourse with duplicate course code
+ok 3 - CourseController - createCourse with duplicate course code
+  ---
+  duration_ms: 0.2192
+  ...
+# Subtest: CourseController - createCourse with service error
+ok 4 - CourseController - createCourse with service error
+  ---
+  duration_ms: 0.223
+  ...
+# Subtest: courseController - findCourseById - course not found
+ok 5 - courseController - findCourseById - course not found
+  ---
+  duration_ms: 0.2545
+  ...
+# Subtest: courseController - findCourseById - server error
+ok 6 - courseController - findCourseById - server error
+  ---
+  duration_ms: 0.1636
+  ...
+# Subtest: courseController - findCourseById - course found
+ok 7 - courseController - findCourseById - course found
+  ---
+  duration_ms: 0.1917
+  ...
+# Subtest: DefinitionController - createDefinition success
+ok 8 - DefinitionController - createDefinition success
+  ---
+  duration_ms: 2.7015
+  ...
+# Subtest: DefinitionController - createDefinition incomplete data
+ok 9 - DefinitionController - createDefinition incomplete data
+  ---
+  duration_ms: 1.0678
+  ...
+# Subtest: DefinitionController - createDefinition server error
+ok 10 - DefinitionController - createDefinition server error
+  ---
+  duration_ms: 0.4591
+  ...
+# Subtest: DefinitionController - getDefinitionsByCourseCode success
+ok 11 - DefinitionController - getDefinitionsByCourseCode success
+  ---
+  duration_ms: 0.3446
+  ...
+# Subtest: DefinitionController - getDefinitionsByCourseCode empty result
+ok 12 - DefinitionController - getDefinitionsByCourseCode empty result
+  ---
+  duration_ms: 0.4164
+  ...
+# Subtest: DefinitionController - getDefinitionsByCourseCode server error
+ok 13 - DefinitionController - getDefinitionsByCourseCode server error
+  ---
+  duration_ms: 1.0451
+  ...
+# Subtest: DefinitionController - updateDefinition success
+ok 14 - DefinitionController - updateDefinition success
+  ---
+  duration_ms: 0.6869
+  ...
+# Subtest: DefinitionController - updateDefinition not found
+ok 15 - DefinitionController - updateDefinition not found
+  ---
+  duration_ms: 0.5441
+  ...
+# Subtest: DefinitionController - updateDefinition incomplete data
+ok 16 - DefinitionController - updateDefinition incomplete data
+  ---
+  duration_ms: 0.5582
+  ...
+# Subtest: DefinitionController - updateDefinition server error
+ok 17 - DefinitionController - updateDefinition server error
+  ---
+  duration_ms: 0.5256
+  ...
+# Subtest: DefinitionController - deleteDefinition success
+ok 18 - DefinitionController - deleteDefinition success
+  ---
+  duration_ms: 0.3993
+  ...
+# Subtest: DefinitionController - deleteDefinition not found
+ok 19 - DefinitionController - deleteDefinition not found
+  ---
+  duration_ms: 0.3737
+  ...
+# Subtest: DefinitionController - deleteDefinition server error
+ok 20 - DefinitionController - deleteDefinition server error
+  ---
+  duration_ms: 0.3946
+  ...
+# Subtest: SectionController - createSection success
+ok 21 - SectionController - createSection success
+  ---
+  duration_ms: 1.8833
+  ...
+# Subtest: SectionController - createSection incomplete data
+ok 22 - SectionController - createSection incomplete data
+  ---
+  duration_ms: 1.0682
+  ...
+# Subtest: SectionController - createSection duplicate section
+ok 23 - SectionController - createSection duplicate section
+  ---
+  duration_ms: 0.4258
+  ...
+# Subtest: SectionController - createSection server error
+ok 24 - SectionController - createSection server error
+  ---
+  duration_ms: 0.4682
+  ...
+# Subtest: SectionController - getSectionsByCourseCode success
+ok 25 - SectionController - getSectionsByCourseCode success
+  ---
+  duration_ms: 0.3372
+  ...
+# Subtest: SectionController - getSectionsByCourseCode empty result
+ok 26 - SectionController - getSectionsByCourseCode empty result
+  ---
+  duration_ms: 0.2859
+  ...
+# Subtest: SectionController - getSectionsByCourseCode server error
+ok 27 - SectionController - getSectionsByCourseCode server error
+  ---
+  duration_ms: 0.3477
+  ...
+# Subtest: SectionController - updateSection success
+ok 28 - SectionController - updateSection success
+  ---
+  duration_ms: 0.4029
+  ...
+# Subtest: SectionController - updateSection not found
+ok 29 - SectionController - updateSection not found
+  ---
+  duration_ms: 0.5732
+  ...
+# Subtest: SectionController - updateSection server error
+ok 30 - SectionController - updateSection server error
+  ---
+  duration_ms: 0.5343
+  ...
+# Subtest: SectionController - deleteSection success
+ok 31 - SectionController - deleteSection success
+  ---
+  duration_ms: 0.4366
+  ...
+# Subtest: SectionController - deleteSection not found
+ok 32 - SectionController - deleteSection not found
+  ---
+  duration_ms: 0.3093
+  ...
+# Subtest: SectionController - deleteSection server error
+ok 33 - SectionController - deleteSection server error
+  ---
+  duration_ms: 0.519
+  ...
+# Subtest: UserController - createUser
+ok 34 - UserController - createUser
+  ---
+  duration_ms: 1.9047
+  ...
+# Subtest: UserController - createUser - duplicate email
+ok 35 - UserController - createUser - duplicate email
+  ---
+  duration_ms: 0.2342
+  ...
+# Subtest: UserController - getUserById
+ok 36 - UserController - getUserById
+  ---
+  duration_ms: 0.2529
+  ...
+# Subtest: UserController - getUserById - user not found
+ok 37 - UserController - getUserById - user not found
+  ---
+  duration_ms: 0.2394
+  ...
+# Subtest: UserController - getUserById - server error
+ok 38 - UserController - getUserById - server error
+  ---
+  duration_ms: 0.3935
+  ...
+# Subtest: UserController - updateUserById
+ok 39 - UserController - updateUserById
+  ---
+  duration_ms: 0.4594
+  ...
+# Subtest: UserController - updateUserById - user not found
+ok 40 - UserController - updateUserById - user not found
+  ---
+  duration_ms: 0.4253
+  ...
+# Subtest: UserController - updateUserById - server error
+ok 41 - UserController - updateUserById - server error
+  ---
+  duration_ms: 0.3652
+  ...
+# Subtest: UserController - deleteUserById
+ok 42 - UserController - deleteUserById
+  ---
+  duration_ms: 0.4386
+  ...
+# Subtest: UserController - deleteUserById - user not found
+ok 43 - UserController - deleteUserById - user not found
+  ---
+  duration_ms: 0.351
+  ...
+# Subtest: UserController - deleteUserById - server error
+ok 44 - UserController - deleteUserById - server error
+  ---
+  duration_ms: 0.3411
+  ...
+# Subtest: UserController - loginUser - success
+ok 45 - UserController - loginUser - success
+  ---
+  duration_ms: 0.297
+  ...
+# Subtest: UserController - loginUser - invalid credentials
+ok 46 - UserController - loginUser - invalid credentials
+  ---
+  duration_ms: 0.2051
+  ...
+# Subtest: UserController - loginUser - unexpected error
+ok 47 - UserController - loginUser - unexpected error
+  ---
+  duration_ms: 0.2497
+  ...
+# Subtest: UserController - checkSession - success
+ok 48 - UserController - checkSession - success
+  ---
+  duration_ms: 0.2137
+  ...
+# Subtest: UserController - checkSession - no user in session
+ok 49 - UserController - checkSession - no user in session
+  ---
+  duration_ms: 0.1557
+  ...
+# Subtest: UserController - logoutUser - success
+ok 50 - UserController - logoutUser - success
+  ---
+  duration_ms: 0.526
+  ...
+# Subtest: UserController - logoutUser - no session
+ok 51 - UserController - logoutUser - no session
+  ---
+  duration_ms: 0.3065
+  ...
+# Subtest: UserController - logoutUser - destroy failure
+ok 52 - UserController - logoutUser - destroy failure
+  ---
+  duration_ms: 0.5167
+  ...
+# node:internal/modules/cjs/loader:1228
+#   throw err;
+#   ^
+# Error: Cannot find module 'sanitize-html'
+# Require stack:
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\middleware\\validators\\sectionValidator.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\routes\\sectionRoutes.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\app-mock.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\courseIntegration.test.js
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+#     at Module._load (node:internal/modules/cjs/loader:1051:27)
+#     at Module.require (node:internal/modules/cjs/loader:1311:19)
+#     at require (node:internal/modules/helpers:179:18)
+#     at Object.<anonymous> (C:\\Users\\shivu\\Downloads\\CRAM\\backend\\middleware\\validators\\sectionValidator.js:2:22)
+#     at Module._compile (node:internal/modules/cjs/loader:1469:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+#     at Module.load (node:internal/modules/cjs/loader:1288:32)
+#     at Module._load (node:internal/modules/cjs/loader:1104:12)
+#     at Module.require (node:internal/modules/cjs/loader:1311:19) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\middleware\\\\validators\\\\sectionValidator.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\routes\\\\sectionRoutes.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\tests\\\\integration\\\\app-mock.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\tests\\\\integration\\\\courseIntegration.test.js'
+#   ]
+# }
+# Node.js v20.17.0
+# Subtest: C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\courseIntegration.test.js
+not ok 5 - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\courseIntegration.test.js
+  ---
+  duration_ms: 961.0732
+  location: 'C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\courseIntegration.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1228
+#   throw err;
+#   ^
+# Error: Cannot find module 'sanitize-html'
+# Require stack:
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\middleware\\validators\\sectionValidator.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\routes\\sectionRoutes.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\app-mock.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\defintionIntegration.test.js
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+#     at Module._load (node:internal/modules/cjs/loader:1051:27)
+#     at Module.require (node:internal/modules/cjs/loader:1311:19)
+#     at require (node:internal/modules/helpers:179:18)
+#     at Object.<anonymous> (C:\\Users\\shivu\\Downloads\\CRAM\\backend\\middleware\\validators\\sectionValidator.js:2:22)
+#     at Module._compile (node:internal/modules/cjs/loader:1469:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+#     at Module.load (node:internal/modules/cjs/loader:1288:32)
+#     at Module._load (node:internal/modules/cjs/loader:1104:12)
+#     at Module.require (node:internal/modules/cjs/loader:1311:19) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\middleware\\\\validators\\\\sectionValidator.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\routes\\\\sectionRoutes.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\tests\\\\integration\\\\app-mock.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\tests\\\\integration\\\\defintionIntegration.test.js'
+#   ]
+# }
+# Node.js v20.17.0
+# Subtest: C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\defintionIntegration.test.js
+not ok 6 - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\defintionIntegration.test.js
+  ---
+  duration_ms: 944.6394
+  location: 'C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\defintionIntegration.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1228
+#   throw err;
+#   ^
+# Error: Cannot find module 'sanitize-html'
+# Require stack:
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\middleware\\validators\\sectionValidator.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\routes\\sectionRoutes.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\app-mock.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\sectionIntegration.test.js
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+#     at Module._load (node:internal/modules/cjs/loader:1051:27)
+#     at Module.require (node:internal/modules/cjs/loader:1311:19)
+#     at require (node:internal/modules/helpers:179:18)
+#     at Object.<anonymous> (C:\\Users\\shivu\\Downloads\\CRAM\\backend\\middleware\\validators\\sectionValidator.js:2:22)
+#     at Module._compile (node:internal/modules/cjs/loader:1469:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+#     at Module.load (node:internal/modules/cjs/loader:1288:32)
+#     at Module._load (node:internal/modules/cjs/loader:1104:12)
+#     at Module.require (node:internal/modules/cjs/loader:1311:19) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\middleware\\\\validators\\\\sectionValidator.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\routes\\\\sectionRoutes.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\tests\\\\integration\\\\app-mock.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\tests\\\\integration\\\\sectionIntegration.test.js'
+#   ]
+# }
+# Node.js v20.17.0
+# Subtest: C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\sectionIntegration.test.js
+not ok 7 - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\sectionIntegration.test.js
+  ---
+  duration_ms: 970.353
+  location: 'C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\sectionIntegration.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/cjs/loader:1228
+#   throw err;
+#   ^
+# Error: Cannot find module 'sanitize-html'
+# Require stack:
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\middleware\\validators\\sectionValidator.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\routes\\sectionRoutes.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\app-mock.js
+# - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\userIntegration.test.js
+#     at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+#     at Module._load (node:internal/modules/cjs/loader:1051:27)
+#     at Module.require (node:internal/modules/cjs/loader:1311:19)
+#     at require (node:internal/modules/helpers:179:18)
+#     at Object.<anonymous> (C:\\Users\\shivu\\Downloads\\CRAM\\backend\\middleware\\validators\\sectionValidator.js:2:22)
+#     at Module._compile (node:internal/modules/cjs/loader:1469:14)
+#     at Module._extensions..js (node:internal/modules/cjs/loader:1548:10)
+#     at Module.load (node:internal/modules/cjs/loader:1288:32)
+#     at Module._load (node:internal/modules/cjs/loader:1104:12)
+#     at Module.require (node:internal/modules/cjs/loader:1311:19) {
+#   code: 'MODULE_NOT_FOUND',
+#   requireStack: [
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\middleware\\\\validators\\\\sectionValidator.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\routes\\\\sectionRoutes.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\tests\\\\integration\\\\app-mock.js',
+#     'C:\\\\Users\\\\shivu\\\\Downloads\\\\CRAM\\\\backend\\\\tests\\\\integration\\\\userIntegration.test.js'
+#   ]
+# }
+# Node.js v20.17.0
+# Subtest: C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\userIntegration.test.js
+not ok 8 - C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\userIntegration.test.js
+  ---
+  duration_ms: 965.0131
+  location: 'C:\\Users\\shivu\\Downloads\\CRAM\\backend\\tests\\integration\\userIntegration.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: CourseService - createCourse
+ok 57 - CourseService - createCourse
+  ---
+  duration_ms: 2.0437
+  ...
+# Subtest: CourseService - createCourse with incomplete data
+ok 58 - CourseService - createCourse with incomplete data
+  ---
+  duration_ms: 0.3259
+  ...
+# Subtest: CourseService - createCourse with duplicate course code
+ok 59 - CourseService - createCourse with duplicate course code
+  ---
+  duration_ms: 0.2201
+  ...
+# Subtest: definitionService - createDefinition
+ok 60 - definitionService - createDefinition
+  ---
+  duration_ms: 1.4068
+  ...
+# Subtest: definitionService - createDefinition with incomplete data
+ok 61 - definitionService - createDefinition with incomplete data
+  ---
+  duration_ms: 0.3144
+  ...
+# Subtest: sectionService - createSection
+ok 62 - sectionService - createSection
+  ---
+  duration_ms: 2.5959
+  ...
+# Subtest: sectionService - createSection with incomplete data
+ok 63 - sectionService - createSection with incomplete data
+  ---
+  duration_ms: 0.7828
+  ...
+# Subtest: sectionService - createSection with duplicate section
+ok 64 - sectionService - createSection with duplicate section
+  ---
+  duration_ms: 0.3353
+  ...
+# Subtest: UserService - createUser
+ok 65 - UserService - createUser
+  ---
+  duration_ms: 2.4781
+  ...
+# Subtest: UserService - createUser with invalid email domain
+ok 66 - UserService - createUser with invalid email domain
+  ---
+  duration_ms: 0.424
+  ...
+# Subtest: UserService - createUser with incomplete data
+ok 67 - UserService - createUser with incomplete data
+  ---
+  duration_ms: 0.2263
+  ...
+# Subtest: UserService - createUser with existing email
+ok 68 - UserService - createUser with existing email
+  ---
+  duration_ms: 0.1728
+  ...
+# Subtest: UserService - createUser with professor email domain
+ok 69 - UserService - createUser with professor email domain
+  ---
+  duration_ms: 0.327
+  ...
+# Subtest: UserService - addContribution new entry
+ok 70 - UserService - addContribution new entry
+  ---
+  duration_ms: 0.2105
+  ...
+# Subtest: UserService - addContribution existing entry updates date
+ok 71 - UserService - addContribution existing entry updates date
+  ---
+  duration_ms: 0.2143
+  ...
+# Subtest: UserService - addContribution server error
+ok 72 - UserService - addContribution server error
+  ---
+  duration_ms: 0.1659
+  ...
+1..72
+# tests 72
+# suites 0
+# pass 68
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1008.9483
