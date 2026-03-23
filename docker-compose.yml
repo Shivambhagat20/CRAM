@@ -1,0 +1,49 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: cram-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - cram-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cram-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/cram
+      - NODE_ENV=development
+      - SESSION_SECRET=cram-dev-secret
+      - JWT_SECRET=cram-dev-jwt-secret
+      - EMAIL_USER=${EMAIL_USER:-noreply.cramapp@gmail.com}
+      - EMAIL_PASS=${EMAIL_PASS:-qben npua coqe madc}
+    depends_on:
+      - mongo
+    networks:
+      - cram-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cram-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - cram-network
+
+networks:
+  cram-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

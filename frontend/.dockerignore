@@ -1,0 +1,11 @@
+node_modules
+dist
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+nginx.conf
+tests
+*.test.ts
+*.test.tsx
