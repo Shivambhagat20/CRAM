@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [ main, development ]
   push:
-    branches: [ main, development ]
+    branches: [ main, development, subtask/34-docker-and-cd-setup ]
 
 jobs:
   # Job 1: Backend CI
