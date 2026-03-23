@@ -71,6 +71,22 @@ exports.clearResetToken = async (id) => {
     ).lean();
 }
 
+// update user's contribution
+// if contribution exists, update its date
+// if a new contribution, add it to the array
+exports.addContribution = async (userId, { refId, contributionType, courseCode }) => {
+    // first try to update the date if contribution exists
+    const existing = await User.findOneAndUpdate(
+        {_id: userId, "contributions.ref_id": refId },
+        {
+            $set: {
+                "contributions.$.date": new Date()
+            }
+        },
+        { new: true }
+    ).lean();
+}
+
 exports.addContribution = async (id, data) => {
     const user = await User.findById(id);
     if (!user) throw new Error('User not found');
@@ -88,3 +104,5 @@ exports.addContribution = async (id, data) => {
     await user.save();
     return user.toJSON();
 }
+    return existing;
+};

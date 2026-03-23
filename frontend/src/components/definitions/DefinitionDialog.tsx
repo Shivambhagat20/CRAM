@@ -28,7 +28,7 @@ export default function DefinitionDialog({
 }: DefinitionDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[40vw] max-w-[40vw]">
         <DialogHeader>
           <DialogTitle>
             {mode === "create"

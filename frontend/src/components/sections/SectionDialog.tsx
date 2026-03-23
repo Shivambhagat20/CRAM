@@ -28,7 +28,7 @@ export default function SectionDialog({
 }: SectionDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[70vw] max-w-[70vw]">
         <DialogHeader>
           <DialogTitle>
             {mode === "create" ? "Create a New Section" : "Edit Section"}
