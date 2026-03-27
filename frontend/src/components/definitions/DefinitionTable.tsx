@@ -56,8 +56,6 @@ function HighlightedText({
   const regex = new RegExp(`(${escapeRegExp(trimmedQuery)})`, "gi");
   const parts = text.split(regex);
 
-  let matchIndex = -1;
-
   return (
     <>
       {parts.map((part, index) => {
@@ -67,7 +65,14 @@ function HighlightedText({
           return <Fragment key={`${part}-${index}`}>{part}</Fragment>;
         }
 
-        matchIndex += 1;
+        // Linter warning fix, was using an unnecessary dependency before.
+        const matchIndex =
+          parts
+            .slice(0, index + 1)
+            .filter(
+              (candidate) =>
+                candidate.toLowerCase() === trimmedQuery.toLowerCase()
+            ).length - 1;
 
         const isActiveMatch =
           isActiveField &&
