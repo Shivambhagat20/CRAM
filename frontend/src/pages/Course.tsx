@@ -32,17 +32,41 @@ import { getCourseCode } from "@/utils/courseHelpers";
 
 type SearchableSection = {
   title: string;
+  titleLower: string;
   description: string;
+  descriptionLower: string;
   bodyText: string;
+  bodyTextLower: string;
   raw: Section;
 };
 
-type SearchResult = {
+type SearchableDefinition = {
+  term: string;
+  termLower: string;
+  definition: string;
+  definitionLower: string;
+  example: string;
+  exampleLower: string;
+  raw: Definition;
+};
+
+type SectionSearchResult = {
+  kind: "section";
   sectionId: string;
   field: "title" | "description" | "body";
   occurrenceIndexInField: number;
 };
 
+type DefinitionSearchResult = {
+  kind: "definition";
+  definitionId: string;
+  field: "term" | "definition" | "example";
+  occurrenceIndexInField: number;
+};
+
+type SearchResult = SectionSearchResult | DefinitionSearchResult;
+
+// Converts HTML string content into plain text.
 function htmlToText(html: string): string {
   if (!html) return "";
 
@@ -51,16 +75,19 @@ function htmlToText(html: string): string {
   return temp.textContent || temp.innerText || "";
 }
 
-function countOccurrences(text: string, query: string): number {
-  const trimmed = query.trim();
-  if (!trimmed) return 0;
 
-  const lowerText = text.toLowerCase();
-  const lowerQuery = trimmed.toLowerCase();
+// Counts how many times a query appears in a given string.
+// Assumes both inputs are already lowercase for case-insensitive search.
+function countOccurrencesInLowerText(
+  lowerText: string,
+  lowerQuery: string
+): number {
+  if (!lowerQuery) return 0;
 
   let count = 0;
   let startIndex = 0;
 
+  // Loop through the string and count non-overlapping matches.
   while (true) {
     const matchIndex = lowerText.indexOf(lowerQuery, startIndex);
     if (matchIndex === -1) break;
@@ -73,6 +100,7 @@ function countOccurrences(text: string, query: string): number {
 }
 
 export default function Course() {
+  // Core state for course content.
   const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const { courseId } = useParams();
@@ -87,14 +115,14 @@ export default function Course() {
 
   // Queries
   const [query, setQuery] = useState("");
-  const [manuallyOpenSectionIds, setManuallyOpenSectionIds] = useState<string[]>(
-    []
-  );
+  const [manuallyOpenSectionIds, setManuallyOpenSectionIds] = useState<string[]>([]);
   const [activeResultIndex, setActiveResultIndex] = useState(0);
 
   if (!courseId) throw new Error("Missing course id");
   const courseCode = getCourseCode(courseId);
-  
+
+  // Fetches the latest course data (sections + definitions) from the backend.
+  // Reused across create/edit/delete to keep UI in sync.
   const fetchCoursePage = useCallback(async (): Promise<void> => {
     try {
       const data = await getCoursePage(courseCode);
@@ -105,6 +133,7 @@ export default function Course() {
     }
   }, [courseCode]);
 
+  // Initial data load on mount or when course changes.
   useEffect(() => {
     const fetchInitial = async () => {
       try {
@@ -119,6 +148,7 @@ export default function Course() {
     fetchInitial();
   }, [courseCode]);
 
+  // Deletes a section and refreshes data.
   const handleDeleteSection = async (section: Section): Promise<void> => {
     try {
       await deleteSection({ sectionId: section._id });
@@ -130,14 +160,17 @@ export default function Course() {
     }
   };
 
-  const handleUpdateSection = async(): Promise<void> => {
+  // Re-fetch after updating section.
+  const handleUpdateSection = async (): Promise<void> => {
     await fetchCoursePage();
   };
 
+  // Re-fetch after creating or updating a definition.
   const handleAddOrUpdateDefinition = async (): Promise<void> => {
     await fetchCoursePage();
   };
 
+  // Deletes a definition and refreshes data.
   const handleDeleteDefinition = async (id: string): Promise<void> => {
     try {
       await deleteDefinition({ definitionId: id });
@@ -147,71 +180,203 @@ export default function Course() {
     }
   };
 
+  // Prepares sections for searching by:
+  // - Normalizing text (lowercase)
+  // - Stripping HTML from body
+  // - Keeping original reference
   const searchableSections = useMemo<SearchableSection[]>(() => {
-    return sections.map((section) => ({
-      title: section.title ?? "",
-      description: section.description ?? "",
-      bodyText: htmlToText(section.body ?? ""),
-      raw: section,
-    }));
+    return sections.map((section) => {
+      const title = section.title ?? "";
+      const description = section.description ?? "";
+      const bodyText = htmlToText(section.body ?? "");
+
+      return {
+        title,
+        titleLower: title.toLowerCase(),
+        description,
+        descriptionLower: description.toLowerCase(),
+        bodyText,
+        bodyTextLower: bodyText.toLowerCase(),
+        raw: section,
+      };
+    });
   }, [sections]);
 
+  // Same thing as searchableSections above but for definitions.
+  const searchableDefinitions = useMemo<SearchableDefinition[]>(() => {
+    return definitions.map((definition) => {
+      const term = definition.term ?? "";
+      const definitionText = definition.definition ?? "";
+      const example = definition.example ?? "";
+
+      return {
+        term,
+        termLower: term.toLowerCase(),
+        definition: definitionText,
+        definitionLower: definitionText.toLowerCase(),
+        example,
+        exampleLower: example.toLowerCase(),
+        raw: definition,
+      };
+    });
+  }, [definitions]);
+
+  // Core search engine:
+  // - Finds matches across sections and definitions
+  // - Tracks which field matched
+  // - Tracks occurrence index for highlighting specific matches
   const searchResults = useMemo<SearchResult[]>(() => {
     const trimmed = query.trim();
+    const lowerQuery = trimmed.toLowerCase();
 
-    if (!trimmed) {
+    if (!lowerQuery) {
       return [];
     }
 
     const results: SearchResult[] = [];
 
+    // Search through sections.
     searchableSections.forEach((section) => {
-      const titleMatches = countOccurrences(section.title, trimmed);
-      const descriptionMatches = countOccurrences(section.description, trimmed);
-      const bodyMatches = countOccurrences(section.bodyText, trimmed);
+      if (section.titleLower.includes(lowerQuery)) {
+        const titleMatches = countOccurrencesInLowerText(
+          section.titleLower,
+          lowerQuery
+        );
 
-      for (let i = 0; i < titleMatches; i += 1) {
-        results.push({
-          sectionId: section.raw._id,
-          field: "title",
-          occurrenceIndexInField: i,
-        });
+        for (let i = 0; i < titleMatches; i += 1) {
+          results.push({
+            kind: "section",
+            sectionId: section.raw._id,
+            field: "title",
+            occurrenceIndexInField: i,
+          });
+        }
       }
 
-      for (let i = 0; i < descriptionMatches; i += 1) {
-        results.push({
-          sectionId: section.raw._id,
-          field: "description",
-          occurrenceIndexInField: i,
-        });
+      if (section.descriptionLower.includes(lowerQuery)) {
+        const descriptionMatches = countOccurrencesInLowerText(
+          section.descriptionLower,
+          lowerQuery
+        );
+
+        for (let i = 0; i < descriptionMatches; i += 1) {
+          results.push({
+            kind: "section",
+            sectionId: section.raw._id,
+            field: "description",
+            occurrenceIndexInField: i,
+          });
+        }
       }
 
-      for (let i = 0; i < bodyMatches; i += 1) {
-        results.push({
-          sectionId: section.raw._id,
-          field: "body",
-          occurrenceIndexInField: i,
-        });
+      if (section.bodyTextLower.includes(lowerQuery)) {
+        const bodyMatches = countOccurrencesInLowerText(
+          section.bodyTextLower,
+          lowerQuery
+        );
+
+        for (let i = 0; i < bodyMatches; i += 1) {
+          results.push({
+            kind: "section",
+            sectionId: section.raw._id,
+            field: "body",
+            occurrenceIndexInField: i,
+          });
+        }
+      }
+    });
+
+    // Search through definitions.
+    searchableDefinitions.forEach((definition) => {
+      if (definition.termLower.includes(lowerQuery)) {
+        const termMatches = countOccurrencesInLowerText(
+          definition.termLower,
+          lowerQuery
+        );
+
+        for (let i = 0; i < termMatches; i += 1) {
+          results.push({
+            kind: "definition",
+            definitionId: definition.raw._id,
+            field: "term",
+            occurrenceIndexInField: i,
+          });
+        }
+      }
+
+      if (definition.definitionLower.includes(lowerQuery)) {
+        const definitionMatches = countOccurrencesInLowerText(
+          definition.definitionLower,
+          lowerQuery
+        );
+
+        for (let i = 0; i < definitionMatches; i += 1) {
+          results.push({
+            kind: "definition",
+            definitionId: definition.raw._id,
+            field: "definition",
+            occurrenceIndexInField: i,
+          });
+        }
+      }
+
+      if (definition.exampleLower.includes(lowerQuery)) {
+        const exampleMatches = countOccurrencesInLowerText(
+          definition.exampleLower,
+          lowerQuery
+        );
+
+        for (let i = 0; i < exampleMatches; i += 1) {
+          results.push({
+            kind: "definition",
+            definitionId: definition.raw._id,
+            field: "example",
+            occurrenceIndexInField: i,
+          });
+        }
       }
     });
 
     return results;
-  }, [query, searchableSections]);
+  }, [query, searchableSections, searchableDefinitions]);
 
   const isSearching = query.trim().length > 0;
 
+  // IDs of sections that contain matches (for highlighting).
   const matchingSectionIds = useMemo<Set<string>>(() => {
-    return new Set(searchResults.map((result) => result.sectionId));
+    return new Set(
+      searchResults
+        .filter(
+          (result): result is SectionSearchResult => result.kind === "section"
+        )
+        .map((result) => result.sectionId)
+    );
   }, [searchResults]);
 
+  // Sections automatically expanded when searching.
   const autoOpenSectionIds = useMemo<string[]>(() => {
     if (!isSearching) {
       return [];
     }
 
-    return [...new Set(searchResults.map((result) => result.sectionId))];
+    return [
+      ...new Set(
+        searchResults
+          .filter(
+            (result): result is SectionSearchResult =>
+              result.kind === "section"
+          )
+          .map((result) => result.sectionId)
+      ),
+    ];
   }, [isSearching, searchResults]);
 
+  // Final list of sections is both sections opened by the user and auto-expanded from above.
+  const openSectionIds = useMemo<string[]>(() => {
+    return [...new Set([...manuallyOpenSectionIds, ...autoOpenSectionIds])];
+  }, [manuallyOpenSectionIds, autoOpenSectionIds]);
+
+  // Ensures active index stays within bounds, was causing issues with linter.
   const safeActiveResultIndex = useMemo<number>(() => {
     if (searchResults.length === 0) {
       return 0;
@@ -222,6 +387,12 @@ export default function Course() {
 
   const activeResult = searchResults[safeActiveResultIndex] ?? null;
 
+  const activeDefinitionResult =
+    activeResult !== null && activeResult.kind === "definition"
+      ? activeResult
+      : null;
+
+  // Navigation helpers for search results
   const goToNextResult = (): void => {
     if (!isSearching || searchResults.length === 0) return;
 
@@ -339,12 +510,11 @@ export default function Course() {
               <div className="bg-primary p-2 rounded-2xl w-full space-y-3">
                 {sections.map((section) => {
                   const isMatch = matchingSectionIds.has(section._id);
-                  const isOpen = isSearching
-                    ? autoOpenSectionIds.includes(section._id)
-                    : manuallyOpenSectionIds.includes(section._id);
+                  const isOpen = openSectionIds.includes(section._id);
 
                   const isActiveMatch =
                     activeResult !== null &&
+                    activeResult.kind === "section" &&
                     section._id === activeResult.sectionId;
 
                   const activeOccurrenceInSection = isActiveMatch
@@ -370,8 +540,6 @@ export default function Course() {
                         onDelete={handleDeleteSection}
                         open={isOpen}
                         onOpenChange={(nextOpen) => {
-                          if (isSearching) return;
-
                           setManuallyOpenSectionIds((prev) =>
                             nextOpen
                               ? [...new Set([...prev, section._id])]
@@ -434,6 +602,12 @@ export default function Course() {
                   setDefinitionOpen(true);
                 }}
                 onDelete={handleDeleteDefinition}
+                searchQuery={query}
+                activeDefinitionId={activeDefinitionResult?.definitionId ?? null}
+                activeField={activeDefinitionResult?.field ?? null}
+                activeOccurrenceIndex={
+                  activeDefinitionResult?.occurrenceIndexInField ?? null
+                }
               />
             </div>
 
@@ -461,7 +635,7 @@ export default function Course() {
                           }
                         }
                       }}
-                      placeholder="Search sections..."
+                      placeholder="Search"
                       className="h-8 w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                     />
 
