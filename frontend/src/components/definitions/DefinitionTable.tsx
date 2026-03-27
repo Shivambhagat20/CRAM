@@ -1,11 +1,12 @@
-import { 
-    Table, 
-    TableBody, 
-    TableCaption, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
+import { Fragment, useEffect, useMemo, useRef } from "react";
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
 } from "../ui/table";
 import { Crown, PencilLine, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -17,12 +18,106 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 
 type DefinitionTableProps = {
-  definitions: Definition[];       
+  definitions: Definition[];
   onEdit: (def: Definition) => void;
-  onDelete: (id: string) => void
+  onDelete: (id: string) => void;
+  searchQuery?: string;
+  activeDefinitionId?: string | null;
+  activeField?: "term" | "definition" | "example" | null;
+  activeOccurrenceIndex?: number | null;
 };
 
-export default function DefinitionTable({definitions, onEdit, onDelete}: DefinitionTableProps) {
+type HighlightedTextProps = {
+  text: string;
+  query: string;
+  isActiveField: boolean;
+  activeOccurrenceIndex: number | null;
+};
+
+// Escapes special regex character so a user's input can be safely used.
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Renders text with search matches highlighted.
+// Specific occurrences get a stronger highlight.
+function HighlightedText({
+  text,
+  query,
+  isActiveField,
+  activeOccurrenceIndex,
+}: HighlightedTextProps) {
+  const trimmedQuery = query.trim();
+
+  if (!trimmedQuery) {
+    return <>{text}</>;
+  }
+
+  const regex = new RegExp(`(${escapeRegExp(trimmedQuery)})`, "gi");
+  const parts = text.split(regex);
+
+  let matchIndex = -1;
+
+  return (
+    <>
+      {parts.map((part, index) => {
+        const isMatch = part.toLowerCase() === trimmedQuery.toLowerCase();
+
+        if (!isMatch) {
+          return <Fragment key={`${part}-${index}`}>{part}</Fragment>;
+        }
+
+        matchIndex += 1;
+
+        const isActiveMatch =
+          isActiveField &&
+          activeOccurrenceIndex !== null &&
+          matchIndex === activeOccurrenceIndex;
+
+        return (
+          <mark
+            key={`${part}-${index}`}
+            className={
+              isActiveMatch
+                ? "rounded bg-secondary px-0.5 text-background"
+                : "rounded bg-yellow-200 px-0.5 text-black"
+            }
+          >
+            {part}
+          </mark>
+        );
+      })}
+    </>
+  );
+}
+
+export default function DefinitionTable({
+  definitions,
+  onEdit,
+  onDelete,
+  searchQuery = "",
+  activeDefinitionId = null,
+  activeField = null,
+  activeOccurrenceIndex = null,
+}: DefinitionTableProps) {
+    // Reference to the currently active definition row so it can scrolled into view and highlighted.
+    const activeRowRef = useRef<HTMLTableRowElement | null>(null);
+
+    // Confirms the active definition still exists in the current dataset.
+    const activeDefinitionExists = useMemo(() => {
+        if (!activeDefinitionId) return false;
+        return definitions.some((definition) => definition._id === activeDefinitionId);
+    }, [activeDefinitionId, definitions]);
+
+    // Keeps the active search result centered in view as the user navigates between matches.
+    useEffect(() => {
+        if (!activeDefinitionExists) return;
+        activeRowRef.current?.scrollIntoView({
+            behavior: "auto",
+            block: "center",
+        });
+    }, [activeDefinitionExists, activeDefinitionId, activeField, activeOccurrenceIndex]);
+
     return(
         <div className="w-full overflow-x-auto">
             <Table className="w-full min-w-[700px]">
@@ -39,7 +134,7 @@ export default function DefinitionTable({definitions, onEdit, onDelete}: Definit
                 </TableHeader>
                 <TableBody>
                     {definitions.map((def) =>{
-                        
+
                         // Sort contributors by date
                         const sortedContributors = [...def.contributors].sort(
                             (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -49,11 +144,38 @@ export default function DefinitionTable({definitions, onEdit, onDelete}: Definit
                         // Latest contributor is last editor
                         const lastEditor = sortedContributors[sortedContributors.length - 1];
 
+                        const isActiveDefinition = activeDefinitionId === def._id;
+
                         return (
-                        <TableRow key={def._id}>
-                            <TableCell className="font-medium break-all whitespace-normal">{def.term}</TableCell>
-                            <TableCell className="break-all whitespace-normal">{def.definition}</TableCell>
-                            <TableCell className="break-all whitespace-normal">{def.example}</TableCell>
+                        <TableRow
+                            key={def._id}
+                            ref={isActiveDefinition ? activeRowRef : null}
+                            className={isActiveDefinition ? "bg-secondary/10" : undefined}
+                        >
+                            <TableCell className="font-medium break-all whitespace-normal">
+                                <HighlightedText
+                                    text={def.term ?? ""}
+                                    query={searchQuery}
+                                    isActiveField={isActiveDefinition && activeField === "term"}
+                                    activeOccurrenceIndex={isActiveDefinition ? activeOccurrenceIndex : null}
+                                />
+                            </TableCell>
+                            <TableCell className="break-all whitespace-normal">
+                                <HighlightedText
+                                    text={def.definition ?? ""}
+                                    query={searchQuery}
+                                    isActiveField={isActiveDefinition && activeField === "definition"}
+                                    activeOccurrenceIndex={isActiveDefinition ? activeOccurrenceIndex : null}
+                                />
+                            </TableCell>
+                            <TableCell className="break-all whitespace-normal">
+                                <HighlightedText
+                                    text={def.example ?? ""}
+                                    query={searchQuery}
+                                    isActiveField={isActiveDefinition && activeField === "example"}
+                                    activeOccurrenceIndex={isActiveDefinition ? activeOccurrenceIndex : null}
+                                />
+                            </TableCell>
                             <TableCell>
                                <AvatarGroup className="overflow-visible">
                                     {/* Creator */}
@@ -88,13 +210,13 @@ export default function DefinitionTable({definitions, onEdit, onDelete}: Definit
                                         ""
                                     )}
                                 </AvatarGroup>
-                            </TableCell> 
-                            <TableCell></TableCell> 
+                            </TableCell>
+                            <TableCell></TableCell>
                             <TableCell className="text-right">
                                 <HoverCard>
                                     <HoverCardTrigger asChild>
-                                        <Button 
-                                            className="hover:text-secondary hover:cursor-pointer mr-1" 
+                                        <Button
+                                            className="hover:text-secondary hover:cursor-pointer mr-1"
                                             aria-label="Edit definition"
                                             onClick={() => onEdit(def)}
                                         >
@@ -148,7 +270,7 @@ export default function DefinitionTable({definitions, onEdit, onDelete}: Definit
                                     </HoverCardContent>
                                     </HoverCard>
                                 )}
-                            </TableCell> 
+                            </TableCell>
                         </TableRow>
                     )})}
                 </TableBody>
