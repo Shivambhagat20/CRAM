@@ -54,7 +54,8 @@ type CourseUI = CourseFromAPI & {
   attributesList: string[];
 };
 
-function useDebouncedValue<T>(value: T, delay = 300) {
+// Currently 0 as search is very fast right now.
+function useDebouncedValue<T>(value: T, delay = 0) {
   const [debounced, setDebounced] = useState(value);
 
   useEffect(() => {
@@ -111,7 +112,7 @@ export default function Home() {
   // Forces rerender when heights change (ref updates alone won't rerender).
   const [sizeVersion, setSizeVersion] = useState(0);
 
-  const debouncedQuery = useDebouncedValue(query, 300);
+  const debouncedQuery = useDebouncedValue(query, 0);
   const deferredQuery = useDeferredValue(debouncedQuery);
 
   type ListHandle = {
