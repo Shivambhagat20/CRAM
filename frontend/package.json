@@ -40,12 +40,17 @@
     "react-hotkeys-hook": "^5.2.4",
     "react-router-dom": "^7.13.0",
     "react-window": "^2.2.7",
+    "recharts": "^2.15.4",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@stryker-mutator/core": "^9.6.0",
+    "@stryker-mutator/jest-runner": "^9.6.0",
+    "@stryker-mutator/typescript-checker": "^9.6.0",
+    "@stryker-mutator/vitest-runner": "^9.6.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/lodash.throttle": "^4.1.9",

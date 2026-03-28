@@ -1,14 +1,16 @@
 const courseService = require('../services/courseServices');
 
+// responds to rquest for all courses, throws error if db fails
 exports.getAllCourses = async (req, res) => {
     try {
         const courses = await courseService.getAllCourses();
         res.status(200).json(courses);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'Database Error' });
     }
 }
 
+//gets and return course by id
 exports.findCourseById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -22,8 +24,10 @@ exports.findCourseById = async (req, res) => {
     }
 }
 
+//self explanatory, creates course
 exports.createCourse = async (req, res) => {
     try {
+        
         const courseData = req.body;
         const newCourse = await courseService.createCourse(courseData);
         res.status(201).json(newCourse);
@@ -38,7 +42,8 @@ exports.createCourse = async (req, res) => {
     }
 }   
 
-exports.updateCourse = async (req, res) => {
+//updates a course.
+exports.updateCourse = async (req, res) => {    
     const { id } = req.params;
     const courseData = req.body;    
     try {
@@ -65,6 +70,8 @@ exports.deleteCourse = async (req, res) => {
     }
 }
 
+
+//Gets 10 random courses, unused
 exports.getSampleCourses = async (req, res) => {
     try {
         const sampleCourses = await courseService.getSampleCourses();

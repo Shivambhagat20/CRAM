@@ -14,12 +14,11 @@ const sectionSchema = new mongoose.Schema({
     },
     contributors: {
         type: [{
-            name: { type: String, required: true },
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
             date: { type: Date, required: true },
             role: { type: String, required: true }
         }], required: true
     }
-
 })
 
 module.exports = mongoose.model('Section', sectionSchema); 

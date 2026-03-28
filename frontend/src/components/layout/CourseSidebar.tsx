@@ -6,8 +6,6 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenuButton,
-  SidebarTrigger,
-  useSidebar,
 } from "@/components/ui/sidebar"
 import type { Section } from "@/api/sectionsApi"
 
@@ -20,8 +18,6 @@ export default function CourseSidebar({
     sections, courseCode
 }: CourseSidebarProps) {
 
-    const { open } = useSidebar()
-
     const scrollTo = (id: string) => {
         const el = document.getElementById(id);
         if (el) {
@@ -32,13 +28,9 @@ export default function CourseSidebar({
     };
   return (
     <div >
-        {!open && 
-            <div className=" fixed "> 
-                <SidebarTrigger/>
-            </div>
-        }
-        <Sidebar side="left" variant="floating">
-            <SidebarTrigger/>
+        
+        <Sidebar side="left" variant="inset">
+            
             <SidebarHeader>
                 {courseCode}
             </SidebarHeader> 
@@ -50,7 +42,7 @@ export default function CourseSidebar({
                     {sections?.map((section) => (
                         <SidebarMenuButton 
                             key={section._id}
-                            className="hover:cursor-pointer hover:bg-secondary hover:text-background"
+                            className="my-2 sm:h-auto hover:cursor-pointer hover:bg-secondary hover:text-background"
                             onClick={() => scrollTo(`section-${section._id}`)}
                         >
                             {section.title}
@@ -69,8 +61,8 @@ export default function CourseSidebar({
                 </SidebarGroup>
                     
             </SidebarContent>
-            <SidebarFooter>
-                Profile
+            <SidebarFooter className="font-bold text-secondary">
+                C.R.A.M
             </SidebarFooter>
         </Sidebar>
     </div>

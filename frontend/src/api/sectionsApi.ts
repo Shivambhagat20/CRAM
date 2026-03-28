@@ -1,10 +1,21 @@
+import { ApiError } from "@/lib/errors/ApiError";
+
 /* TYPES */
+export type Contributor = {
+    userId: string;
+    date: string;
+    role: string;
+    username: string;
+    profilePic: string;
+};
+
 export type Section = {
     _id: string;
     courseCode: string;
     title: string;
     description: string;
     body: string;
+    contributors: Contributor[];
     timestamp?: string; // We can add this in the backend.
 };
 
@@ -14,6 +25,7 @@ export type Definition = {
     term: string;
     definition: string;
     example: string;
+    contributors: Contributor[];
     timestamp?: string;
 }
 
@@ -33,7 +45,7 @@ type ErrorBody = {
 
 /* HELPERS */
 
-function isErrorBody(body: unknown): body is ErrorBody {
+export function isErrorBody(body: unknown): body is ErrorBody {
     return (
         typeof body === "object" &&
         body !== null &&
@@ -41,7 +53,7 @@ function isErrorBody(body: unknown): body is ErrorBody {
     );
 }
 
-function getBackendMessage(body: unknown): string | undefined {
+ export function getBackendMessage(body: unknown): string | undefined {
     return isErrorBody(body) ? body.error ?? body.message : undefined;
 }
 
@@ -69,12 +81,12 @@ export async function createSection(data: {
 
         switch (response.status) {
             case 401:
-                throw new Error("Only logged-in users may create sections.");
+                throw new ApiError(401,"Only logged-in users may create sections.");
             case 409:
             case 422:
-                throw new Error(msg ?? "Invalid request.");
+                throw new ApiError(response.status, msg ?? "Invalid request.");
             default:
-                throw new Error(msg ?? "Something went wrong. Please try again.");
+                throw new ApiError(response.status, msg ?? "Something went wrong. Please try again.");
         }
     }
 
@@ -133,14 +145,14 @@ export async function updateSection(data: {
 
         switch (response.status) {
             case 401:
-                throw new Error("Only logged-in users may update sections.");
+                throw new ApiError(response.status, "Only logged-in users may update sections.");
             case 404:
-                throw new Error(msg ?? "Section not found.");
+                throw new ApiError(response.status, msg ?? "Section not found.");
             case 409:
             case 422:
-                throw new Error(msg ?? "Invalid request.");
+                throw new ApiError(response.status, msg ?? "Invalid request.");
             default:
-                throw new Error(msg ?? "Something went wrong. Please try again.");
+                throw new ApiError(response.status, msg ?? "Something went wrong. Please try again.");
         }
     }
 
@@ -164,14 +176,14 @@ export async function deleteSection(data: { sectionId: string }) {
 
         switch (response.status) {
             case 401:
-                throw new Error("Only logged-in users may delete sections.");
+                throw new ApiError(response.status, "Only logged-in users may delete sections.");
             case 404:
-                throw new Error(msg ?? "Section not found.");
+                throw new ApiError(response.status, msg ?? "Section not found.");
             case 409:
             case 422:
-                throw new Error(msg ?? "Invalid request.");
+                throw new ApiError(response.status, msg ?? "Invalid request.");
             default:
-                throw new Error(msg ?? "Something went wrong. Please try again.");
+                throw new ApiError(response.status, msg ?? "Something went wrong. Please try again.");
         }
     }
 
@@ -201,12 +213,12 @@ export async function createDefinition(data: {
 
     switch (response.status) {
       case 401:
-        throw new Error("Only logged-in users may create definitions.");
+        throw new ApiError(response.status, "Only logged-in users may create definitions.");
       case 409:
       case 422:
-        throw new Error(msg ?? "Invalid request.");
+        throw new ApiError(response.status, msg ?? "Invalid request.");
       default:
-        throw new Error(msg ?? "Something went wrong. Please try again.");
+        throw new ApiError(response.status, msg ?? "Something went wrong. Please try again.");
     }
   }
 
@@ -233,14 +245,14 @@ export async function updateDefinition(data: {
 
     switch (response.status) {
       case 401:
-        throw new Error("Only logged-in users may update definitions.");
+        throw new ApiError(response.status, "Only logged-in users may update definitions.");
       case 404:
-        throw new Error(msg ?? "Definition not found.");
+        throw new ApiError(response.status, msg ?? "Definition not found.");
       case 409:
       case 422:
-        throw new Error(msg ?? "Invalid request.");
+        throw new ApiError(response.status, msg ?? "Invalid request.");
       default:
-        throw new Error(msg ?? "Something went wrong. Please try again.");
+        throw new ApiError(response.status, msg ?? "Something went wrong. Please try again.");
     }
   }
 
@@ -262,14 +274,14 @@ export async function deleteDefinition(data: { definitionId: string }) {
 
     switch (response.status) {
       case 401:
-        throw new Error("Only logged-in users may delete definitions.");
+        throw new ApiError(response.status, "Only logged-in users may delete definitions.");
       case 404:
-        throw new Error(msg ?? "Definition not found.");
+        throw new ApiError(response.status, msg ?? "Definition not found.");
       case 409:
       case 422:
-        throw new Error(msg ?? "Invalid request.");
+        throw new ApiError(response.status, msg ?? "Invalid request.");
       default:
-        throw new Error(msg ?? "Something went wrong. Please try again.");
+        throw new ApiError(response.status, msg ?? "Something went wrong. Please try again.");
     }
   }
 

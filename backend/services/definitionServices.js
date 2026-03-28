@@ -1,30 +1,73 @@
-const definitionRepositoy = require('../repositories/definitionRepository');
+const definitionRepository = require('../repositories/definitionRepository');
+const userService = require('./userServices');
 
+
+// gets defintions that share a course code, gets the contributers and assembles them
 exports.getDefinitionsByCourseCode = async (courseCode) => {
-    return await definitionRepositoy.getDefinitionsByCourseCode(courseCode);
-}
+    const definitions = await definitionRepository.getDefinitionsByCourseCode(courseCode);
+    console.log("Fetched definitions from DB:", definitions);
 
-exports.createDefinition = async (definitionData) => {
+    if (!definitions || definitions.length === 0) return [];
+
+    // get all unique userIds from all contributors
+    const userIds = [
+        ...new Set(definitions.flatMap(def => (def.contributors ?? []).map(contributor => contributor.userId))),
+    ];
+    console.log("Unique contributor userIds:", userIds);
+
+    // fetch all users at once
+    const users = await userService.getUsersByIds(userIds);
+    const userMap = Object.fromEntries(users.map(user => [user._id.toString(), user]));
+    console.log("Fetched users:", users);
+
+    // enrich contributors in definitions
+    const enrichedDefinitions = definitions.map(def => ({
+        ...def,
+        contributors: (def.contributors ?? []).map(contributor => ({
+            ...contributor,
+            username: userMap[contributor.userId.toString()]?.username,
+            profilePic: userMap[contributor.userId.toString()]?.profile_pic,
+        })),
+    }));
+
+    console.log("Enriched definitions:", enrichedDefinitions);
+    return enrichedDefinitions;
+};
+
+
+// creates defintion, sets user as contributer
+exports.createDefinition = async (definitionData, sessionData) => {
     const definitionIsComplete = definitionData.courseCode && definitionData.term && definitionData.definition && definitionData.example;
     if (!definitionIsComplete) {
         throw new Error('Definition data is incomplete');
     }
-    return await definitionRepositoy.createDefinition(definitionData);
+
+    // create new definition object to match Definition schema
+    // use sessionData from the cookie to get contributor details
+    const newDefinition = {
+        ...definitionData,
+        contributors: [{
+            userId: sessionData.id,
+            date: new Date(),
+            role: sessionData.role
+        }]
+    };
+
+    return await definitionRepository.createDefinition(newDefinition);
 }
 
+//delete def
 exports.deleteDefinition = async (id) => {
-    const deletedDefinition = await definitionRepositoy.deleteDefinition(id);
+    const deletedDefinition = await definitionRepository.deleteDefinition(id);
     if (!deletedDefinition) {
         throw new Error('Definition not found');
     }
 }
 
-exports.updateDefinition = async (id, updateData) => {
-    const definitionIsComplete = updateData.courseCode && updateData.term && updateData.definition && updateData.example;
-    if (!definitionIsComplete) {
-        throw new Error('Definition data is incomplete');
-    }
-    const updatedDefinition = await definitionRepositoy.updateDefinition(id, updateData);
+//updates defintion
+exports.updateDefinition = async (id, updateData, sessionData) => {
+
+    const updatedDefinition = await definitionRepository.updateDefinition(id, updateData, sessionData);
     if (!updatedDefinition) {
         throw new Error('Definition not found');
     }

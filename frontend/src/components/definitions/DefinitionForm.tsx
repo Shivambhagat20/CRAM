@@ -14,6 +14,10 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { createDefinition, updateDefinition } from "@/api/sectionsApi";
 import type { Definition } from "@/api/sectionsApi";
+import { ApiError } from "@/lib/errors/ApiError";
+import { useAuthDialog } from "@/context/useAuthDialog";
+
+
 
 type FormProps = {
   mode: "create" | "edit";
@@ -46,6 +50,8 @@ export default function DefinitionForm({
     },
   });
 
+  const {openAuthDialog} = useAuthDialog();
+
   useEffect(() => {
     if (initialValues) {
       form.reset(initialValues);
@@ -70,8 +76,8 @@ export default function DefinitionForm({
       form.reset();
     } catch (error: unknown) {
       console.error("Submission failed", error);
-       if (error instanceof Error) {
-        alert(error.message);
+       if (error instanceof ApiError && error.status === 401) {
+        openAuthDialog("login");
       } else {
         alert("Failed to save definition");
       }

@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const sectionController = require('../controllers/sectionController');
-const { requireAuth } = require('../middleware/auth');
-
+const { requireVerification } = require('../middleware/auth');
+const { registerSchema, validate } = require('../middleware/validators/sectionValidator')
 
 router.get('/:courseCode', sectionController.getSectionsByCourseCode);
 
-// Since all CRUD routes require Auth, run once at the top.
-// If it fails, it will return 401.
-// Valid auth runs next() so request is forwarded to CRUD endpoints.
-router.use(requireAuth);
+// All CRUD routes below require authentication and email verification.
+// If either middleware fails, a 401 or 403 response is returned.
+// Otherwise, the request continues to the protected section endpoints.
+router.use(requireVerification); // checks auth and verification
 
-router.post('/create', sectionController.createSection);
+router.post('/create', registerSchema, validate, sectionController.createSection);
 
 router.delete('/delete/:id', sectionController.deleteSection);
 
-router.put('/update/:id', sectionController.updateSection);
+router.put('/update/:id', registerSchema, validate, sectionController.updateSection);
 
 module.exports = router;

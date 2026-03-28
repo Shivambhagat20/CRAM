@@ -12,6 +12,13 @@ jobs:
   backend-checks:
     name: Backend Lint & Test
     runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -37,10 +44,13 @@ jobs:
           cd backend
           npm test
           echo "Backend tests complete"
+        env:
+          MONGO_URI: mongodb://127.0.0.1:27017/test_db_0
+          SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
 
   # Job 2: Frontend CI
   frontend-checks:
-    name: Frontend Build Check
+    name: Frontend Lint, Test & Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -60,6 +70,13 @@ jobs:
         run: |
           cd frontend
           npm run lint
+
+      - name: Run Tests
+        run: |
+          cd frontend
+          npm run test
+          echo "Frontend tests complete"
+        
 
       - name: Build Check
         run: |

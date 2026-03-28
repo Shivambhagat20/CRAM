@@ -3,3 +3,6 @@ node_modules/
 .DS_Store
 *.log
 testingsubstitutions.txt
+
+# stryker temp files
+.stryker-tmp

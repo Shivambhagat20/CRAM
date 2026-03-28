@@ -16,6 +16,9 @@ import { Button } from "../ui/button"
 import { useEffect, useState } from "react"
 import type { Section } from "@/api/sectionsApi"
 import { createSection, updateSection } from "@/api/sectionsApi"
+import { ApiError } from "@/lib/errors/ApiError"
+import { BadgeAlert } from "lucide-react"
+import { useAuthDialog } from "@/context/useAuthDialog"
 
 type RteProps = {
     onSuccess?: (section: Section) => void;
@@ -30,6 +33,7 @@ type RteProps = {
 };
 
 export default function Rte({onSuccess, courseCode, mode, sectionId, initialValues}: RteProps) {
+    const {openAuthDialog} = useAuthDialog();
     const [loading, setLoading] = useState(false);
     const [serverError, setServerError] = useState<string | null>(null);
 
@@ -90,9 +94,13 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
 
         } catch (error) {
             console.error("Submission failed", error);
-            setServerError(
-                error instanceof Error ? error.message : "Something went wrong."
-            );
+            if (error instanceof ApiError && error.status === 401){
+                openAuthDialog("login");
+            }else{
+                setServerError(
+                    error instanceof Error ? error.message : "Something went wrong."
+                );
+            }
         } finally {
             setLoading(false);
         }
@@ -145,9 +153,9 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
                 </Button>
 
                 {serverError && (
-                    <p className="text-destructive text-sm text-center mt-2">
-                        {serverError}
-                    </p>
+                    <div className="flex flex-row justify-center bg-secondary text-red-800 font-bold px-4 py-2 rounded-md text-sm mt-2">
+                        <BadgeAlert />{serverError}
+                    </div>
                 )}
             </form>
         </Form>

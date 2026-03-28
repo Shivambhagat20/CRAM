@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.stryker-mutator.io",
+  "testRunner": "command",
+  "commandRunner": {
+    "command": "node --test" 
+  },
+  "mutate": [
+    "services/*.js",
+    "controllers/*.js"
+  ],
+  "concurrency":  1, 
+  "timeoutMS": 10000,
+  "timeoutFactor": 2,
+  "incremental": true,
+  "coverageAnalysis": "off",
+  "reporters": ["progress", "clear-text", "html"]
+}

@@ -4,6 +4,7 @@ exports.getAllCourses = async () => {
     return await courseRepository.getAllCourses();
 }
 
+
 exports.findCourseById = async (id) => {
     return await courseRepository.getCourseById(id);
 }
@@ -24,12 +25,18 @@ exports.createCourse = async (courseData) => {
     } 
     return await courseRepository.createCourse(courseData);
 }
+
+//updates a course unused
 exports.updateCourse = async (id, courseData) => {
     return await courseRepository.updateCourse(id, courseData);
 }
+
+// deletes a course, currently unused
 exports.deleteCourse = async (id) => {
     return await courseRepository.deleteCourse(id);
 }   
+
+// gets 10 random courses, un used
 exports.getSampleCourses = async () => {
     return await courseRepository.getSampleCourses();
 }

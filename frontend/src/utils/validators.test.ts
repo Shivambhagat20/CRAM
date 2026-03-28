@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateSignup, validateSignin } from "./validators";
+import { validateSignup } from "./validators";
 
 // unit test validate signup
 describe("validateSignup", () => {
@@ -169,84 +169,6 @@ describe("validateSignup", () => {
         expect(result).toEqual({
         email: "Email domain is not valid",
         confirmPassword: "Passwords do not match",
-        });
-    });
-});
-
-// unit test validate signin
-describe("validateSignin", () => {
-
-    const validInput = {
-        email: "test@umanitoba.ca",
-        password: "password123",
-    };
-
-    /* ------------------------
-        Fully Valid Case
-    -------------------------*/
-    it("returns empty object when input is fully valid", () => {
-        expect(validateSignin(validInput)).toEqual({});
-    });
-
-    /* ------------------------
-        Email Validation
-    -------------------------*/
-    it("fails when email is empty", () => {
-        const result = validateSignin({ ...validInput, email: "" });
-        expect(result).toEqual({ email: "Email required" });
-    });
-
-    it("fails when email is whitespace only", () => {
-        const result = validateSignin({ ...validInput, email: "   " });
-        expect(result).toEqual({ email: "Email required" });
-    });
-
-    it("passes when email has surrounding spaces", () => {
-        const result = validateSignin({ ...validInput, email: "  test@umanitoba.ca  " });
-        expect(result).toEqual({});
-    });
-
-    /* ------------------------
-        Password Validation
-    -------------------------*/
-    it("fails when password is empty", () => {
-        const result = validateSignin({ ...validInput, password: "" });
-        expect(result).toEqual({ password: "Password required" });
-    });
-
-    it("fails when password is whitespace only", () => {
-        const result = validateSignin({ ...validInput, password: "   " });
-        expect(result).toEqual({ password: "Password required" });
-    });
-
-    it("passes when password has surrounding spaces", () => {
-        const result = validateSignin({ ...validInput, password: "  password123  " });
-        expect(result).toEqual({});
-    });
-
-    /* ------------------------
-        Multiple Errors Together
-    -------------------------*/
-    it("returns both errors when both fields are invalid", () => {
-        const result = validateSignin({
-            email: "",
-            password: "",
-        });
-
-        expect(result).toEqual({
-            email: "Email required",
-            password: "Password required",
-        });
-    });
-
-    it("returns partial errors correctly", () => {
-        const result = validateSignin({
-            email: "",
-            password: "password123",
-        });
-
-        expect(result).toEqual({
-            email: "Email required",
         });
     });
 });

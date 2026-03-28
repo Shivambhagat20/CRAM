@@ -35,3 +35,5 @@ Thumbs.db
 
 # Misc
 .cache/
+# stryker temp files
+.stryker-tmp

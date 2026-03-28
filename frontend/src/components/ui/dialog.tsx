@@ -4,11 +4,57 @@ import { Dialog as DialogPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "./confirm-dialog"
 
 function Dialog({
+  children,
+  open: openProp,
+  onOpenChange: onOpenChangeProp,
+  confirmOnClose = false,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+}: React.ComponentProps<typeof DialogPrimitive.Root> & { confirmOnClose?: boolean }) {
+  const [internalOpen, setInternalOpen] = React.useState(openProp ?? false);
+  const [showConfirm, setShowConfirm] = React.useState(false);
+
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : internalOpen;
+
+  const handleOpenChange = (next: boolean) => {
+    if (!next && confirmOnClose) {
+      // Don't close yet, show the styled confirm dialog
+      setShowConfirm(true);
+      return;
+    }
+
+    if (!isControlled) setInternalOpen(next);
+    onOpenChangeProp?.(next);
+  };
+
+  const handleConfirmClose = () => {
+    setShowConfirm(false);
+    if (!isControlled) setInternalOpen(false);
+    onOpenChangeProp?.(false);
+  };
+
+  const handleCancelClose = () => setShowConfirm(false);
+
+  return (
+    <>
+      <DialogPrimitive.Root {...props} open={open} onOpenChange={handleOpenChange}>
+        {children}
+      </DialogPrimitive.Root>
+
+      {/* Styled confirm dialog */}
+      {confirmOnClose && (
+        <ConfirmDialog
+          open={showConfirm}
+          onConfirm={handleConfirmClose}
+          onCancel={handleCancelClose}
+          message="You have unsaved changes. Do you really want to close?"
+        />
+      )}
+    </>
+  );
 }
 
 function DialogTrigger({

@@ -1,9 +1,18 @@
 const sectionService = require('../services/sectionServices');
+const userService = require('../services/userServices');
 
+
+//creates a section, adds creator as a contributer
 exports.createSection = async (req, res) => {
     try {
         const sectionData = req.body;
-        const newSection = await sectionService.createSection(sectionData);
+        const sessionData = req.session.user;
+        const newSection = await sectionService.createSection(sectionData, sessionData);
+        await userService.addContribution(sessionData.id, {
+            refId: newSection._id,
+            contributionType: 'section',
+            courseCode: newSection.courseCode
+        });
         res.status(201).json(newSection);
     } catch (error) {
         if (error.message.includes('already exists')) {
@@ -16,6 +25,7 @@ exports.createSection = async (req, res) => {
     }
 }
 
+//gets and returns all sections sharing a course code
 exports.getSectionsByCourseCode = async (req, res) => {
     const { courseCode } = req.params;
     try {
@@ -26,6 +36,7 @@ exports.getSectionsByCourseCode = async (req, res) => {
     }
 }
 
+//delete section
 exports.deleteSection = async (req, res) => {
     const { id } = req.params;  
     try {
@@ -39,14 +50,22 @@ exports.deleteSection = async (req, res) => {
     }
 }
 
-exports.updateSection = async (req, res) => {   
+
+//update sectiona
+exports.updateSection = async (req, res) => {  
     const { id } = req.params;
     const updateData = req.body;
+    const sessionData = req.session.user;
     try {
-        const updatedSection = await sectionService.updateSection(id, updateData);
+        const updatedSection = await sectionService.updateSection(id, updateData, sessionData);
         if (!updatedSection) {
             return res.status(404).json({ error: 'Section not found' });
         }
+        await userService.addContribution(sessionData.id, {
+            refId: updatedSection._id,
+            contributionType: 'section',
+            courseCode: updatedSection.courseCode
+        });
         res.status(200).json(updatedSection);
     } catch (error) {
         res.status(500).json({ error: error.message });

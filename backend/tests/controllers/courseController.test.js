@@ -222,3 +222,27 @@ test('courseController - findCourseById - course found', async (t) => {
     assert.strictEqual(res.statusCode, 200);
     assert.deepStrictEqual(res.body, courseData);
 });
+
+test('CourseController - getAllCourses with service error', async (t) => {
+
+    t.mock.method(courseService, 'getAllCourses', async () => {
+        throw new Error('Database error'); // Simulate service error
+    });
+    const req = {};
+    const res = {
+        statusCode: 0,
+        body: null, 
+        status(code) {
+            this.statusCode = code;
+            return this; 
+        },
+        json(data) {
+            this.body = data;
+            return this;
+        }   
+    };
+    await courseController.getAllCourses(req, res);
+    
+    assert.strictEqual(res.statusCode, 500);
+    assert.deepStrictEqual(res.body, { error: 'Database Error' });
+});

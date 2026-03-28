@@ -6,12 +6,6 @@ type SignupInput = {
     confirmPassword: string;
 };
 
-// define the signin input to validate
-type SigninInput = {
-    email: string;
-    password: string;
-};
-
 /*
 Validate the signup input by checking each attribute
 against the decided-upon requirements.
@@ -48,22 +42,6 @@ export function validateSignup(input: SignupInput) {
         errors.confirmPassword = "Passwords do not match";
     }
 
-    // return empty object if valid
-    return errors;
-}
-
-// Validate signin by ensuring email and password are not empty.
-export function validateSignin(input: SigninInput) {
-    const { email, password } = input;
-    const errors: {
-        email?: string;
-        password?: string;
-    } = {};
-
-    // fields cannot be empty
-    if (!email.trim()) errors.email = "Email required";
-    if (!password.trim()) errors.password = "Password required";
-    
     // return empty object if valid
     return errors;
 }

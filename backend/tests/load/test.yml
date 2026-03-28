@@ -1,0 +1,125 @@
+config:
+  target: "http://127.0.0.1:5001" 
+  phases:
+    - duration: 60      # Run for X seconds
+      arrivalRate: 10   # Add X new users every second
+      name: Warm up
+scenarios:
+  - name: "Full CRAM Feature Flow"
+    flow:
+      # Account Creation: Create User
+      - post:
+          url: "/api/v1/user/create"
+          json:
+            name: "load test man"
+            email: "loadtest_{{ $randomString() }}@myumanitoba.ca"
+            password: "Password123!"
+          capture:
+            - json: "$._id"
+              as: "userId"
+            - json: "$.email"
+              as: "userEmail"
+      
+      #Geting verification code
+      - think: 1
+      - get:
+          url: "/api/v1/user/{{ userId }}"
+          capture:
+            json: "$.verification_code" 
+            as: "vCode"
+      - log: " "
+      - log: "=================================================="  
+      - log: "userID: {{ userId }}, vCode: -{{ vCode }}-" 
+    
+      # Account Creation: Verify the User
+      - put:
+          url: "/api/v1/user/verify-email"
+          json:
+            email: "{{ userEmail }}"
+            code: "{{ vCode }}"
+      
+      - log: "email: {{ userEmail }}" 
+      - post:
+          url: "/api/v1/user/login"
+          json:
+            email: "{{userEmail}}"
+            password: "Password123!"
+          
+      - log: "LOGIN"
+      #Course provisioning
+      - get:
+          url: "/api/v1/courses"
+      - log: "GET COURSES"
+      - post:
+          url: "/api/v1/courses/create"
+          json:
+            courseCode: "TEST {{ $randomNumber(1000, 9999) }}"
+            title: "load test course"
+            number: "6767"
+            subject: "TEST"
+            attributes: "TEST"
+            prerequisites: "none"
+            description: "words"
+            credits: "3"
+          capture:
+            - json: "$._id"
+              as: "courseID"
+            - json: "$.courseCode"
+              as: "cCode"
+      - log: "courseID: {{ courseID }}, courseCode: {{cCode}}" 
+      
+      #Section Management
+      - post: 
+          url: "/api/v1/sections/create"
+          json:
+            courseCode: "{{cCode}}"
+            title: "SECTION_{{ $randomString() }}"
+            description: "onions"
+            body: "weeeeeeeeeeeeeeeeeeeee"
+          capture:
+            - json: "$._id"
+              as: "sectionID"
+
+      - log: "sectionID: {{ sectionID }}" 
+
+      - put:
+          url: "/api/v1/sections/update/{{sectionID}}"
+          json:
+            description: "tomatoes"
+      - delete:
+          url: "/api/v1/sections/delete/{{sectionID}}"
+      - log: "DELETING SECTION" 
+
+      #Definitions
+      - post: 
+          url: "/api/v1/definitions/create"
+          json:
+            courseCode: "{{cCode}}"
+            term: "DEFINITION_{{ $randomString() }}"
+            definition: "onions"
+            example: "weeeeeeeeeeeeeeeeeeeee"
+          capture:
+            json: "$._id"
+            as: "definitionID"
+
+      - log: "definition: {{ definitionID }}" 
+
+      - put:
+          url: "/api/v1/definitions/update/{{definitionID}}"
+          json:
+            definition: "tomatoes"
+      - delete:
+          url: "/api/v1/definitions/delete/{{definitionID}}"
+      - log: "DELETING DEFINITION"
+      #Profile Management
+      - put:
+          url: "/api/v1/user/update/{{userId}}"
+          json:
+            username: "Updated load test name"
+      - delete:
+          url: "/api/v1/user/delete/{{userId}}"
+      - log: "DELETING USER"
+      - delete:
+          url: "/api/v1/courses/delete/{{courseID}}"
+      - log: "DELETING COURSE"
+        
