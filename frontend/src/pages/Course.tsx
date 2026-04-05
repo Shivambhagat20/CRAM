@@ -844,24 +844,57 @@ export default function Course() {
     setManuallyOpenSectionIds([]);
   }, []);
 
+  /* Hotkey Helpers */
+  const clearSearch = useCallback(() => {
+    setQuery("");
+    setActiveResultIndex(0);
+    searchInputRef.current?.blur();
+  }, []);
+
+  const openNewSection = useCallback(() => {
+    setEditSection(null);
+    setOpenCreate(true);
+  }, []);
+
+  const openNewDefinition = useCallback(() => {
+    setEditDefinition(null);
+    setDefinitionOpen(true);
+  }, []);
+
+  const toggleSortMode = useCallback(() => {
+    updateSortMode(
+      sortMode === "alphabetical-asc"
+        ? "alphabetical-desc"
+        : "alphabetical-asc"
+    );
+  }, [sortMode, updateSortMode]);
+
+  const toggleAllSections = useCallback(() => {
+    if (areAllSectionsOpen) {
+      setManuallyOpenSectionIds([]);
+      return;
+    }
+
+    setManuallyOpenSectionIds(allSectionIds);
+  }, [areAllSectionsOpen, allSectionIds]);
+
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
+      const key = e.key.toLowerCase();
 
+      // Detect if user is currently typing in an input area.
       const isTyping =
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA" ||
         target.isContentEditable;
 
-      const key = e.key.toLowerCase();
-
-      // ESC (always allowed)
+      // ESC
+      // Clears the current search and resets navigation.
       if (key === "escape") {
         if (query) {
           e.preventDefault();
-          setQuery("");
-          setActiveResultIndex(0);
-          searchInputRef.current?.blur();
+          clearSearch();
         }
         return;
       }
@@ -870,6 +903,7 @@ export default function Course() {
       if (isTyping) return;
 
       // "/" focus search
+      // Brings focus to the search input.
       if (key === "/") {
         e.preventDefault();
         searchInputRef.current?.focus();
@@ -877,48 +911,40 @@ export default function Course() {
       }
 
       // "?" show shortcuts
+      // Opens the keyboard shortcuts window.
       if (key === "?") {
         e.preventDefault();
         setShowShortcuts(true);
         return;
       }
 
-      // "n" new section
-      if (key === "n" && !e.shiftKey) {
+      // "n" / "Shift + N"
+      // Creates a new section or definition depending on modifier key.
+      if (key === "n") {
         e.preventDefault();
-        setEditSection(null);
-        setOpenCreate(true);
-        return;
-      }
 
-      // "Shift + N" new definition
-      if (key === "n" && e.shiftKey) {
-        e.preventDefault();
-        setEditDefinition(null);
-        setDefinitionOpen(true);
+        if (e.shiftKey) {
+          openNewDefinition();
+        } else {
+          openNewSection();
+        }
+
         return;
       }
 
       // "a" toggle sort
+      // Switches between ascending and descending alphabetical order.
       if (key === "a") {
         e.preventDefault();
-        updateSortMode(
-          sortMode === "alphabetical-asc"
-            ? "alphabetical-desc"
-            : "alphabetical-asc"
-        );
+        toggleSortMode();
         return;
       }
 
       // "x" expand/collapse all
+      // Toggles all sections between expanded and collapsed states.
       if (key === "x") {
         e.preventDefault();
-        if (areAllSectionsOpen) {
-          setManuallyOpenSectionIds([]);
-        } else {
-          setManuallyOpenSectionIds(allSectionIds);
-        }
-        return;
+        toggleAllSections();
       }
     };
 
@@ -926,10 +952,11 @@ export default function Course() {
     return () => window.removeEventListener("keydown", handleKeydown);
   }, [
     query,
-    areAllSectionsOpen,
-    allSectionIds,
-    sortMode,
-    updateSortMode,
+    clearSearch,
+    openNewSection,
+    openNewDefinition,
+    toggleSortMode,
+    toggleAllSections,
   ]);
 
   // Controls whether the search drawer is open on smaller screens.
