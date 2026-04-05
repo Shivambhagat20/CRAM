@@ -117,7 +117,11 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
                             <FormItem>
                                 <FormLabel>Title</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Main title" {...field} />
+                                    <Input
+                                        placeholder="Main title"
+                                        {...field}
+                                        className="rounded-none border-border"
+                                        />
                                 </FormControl>
                                 <FormMessage/>
                             </FormItem>
@@ -130,7 +134,11 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
                             <FormItem>
                                 <FormLabel>Description</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="description" {...field} />
+                                    <Input
+                                        placeholder="description"
+                                        {...field}
+                                        className="rounded-none border-border"
+                                        />
                                 </FormControl>
                                 <FormMessage/>
                             </FormItem>
@@ -161,6 +169,4 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
         </Form>
       </div>  
     );
-
-    
 }

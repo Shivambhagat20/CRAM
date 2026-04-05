@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { CirclePlus, Search, ChevronUp, ChevronDown } from "lucide-react";
+import { CirclePlus, Search, ChevronUp, ChevronDown, X } from "lucide-react";
 
 import SectionCard from "@/components/sections/SectionCard";
 import SectionDialog from "@/components/sections/SectionDialog";
@@ -370,6 +370,28 @@ export default function Course() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const lastRepeatedNavigationAtRef = useRef(0);
 
+  // Sorting
+  type SortMode = "alphabetical-asc" | "alphabetical-desc";
+  const [sortMode, setSortMode] = useState<SortMode>("alphabetical-asc");
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement | null>(null);
+
+  const updateSortMode = useCallback((nextSortMode: SortMode) => {
+    setSortMode(nextSortMode);
+    setActiveResultIndex(0);
+  }, []);
+
+  // Navigation
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  //Shortcut state
+  const [showShortcuts, setShowShortcuts] = useState(false);
+
+  // Scroll to top.
+  const scrollToTop = useCallback(() => {
+    globalThis.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
   if (!courseId) throw new Error("Missing course id");
   const courseCode = getCourseCode(courseId);
 
@@ -412,12 +434,78 @@ export default function Course() {
       }
     };
 
-    window.addEventListener("keydown", handleFindShortcut);
+    globalThis.addEventListener("keydown", handleFindShortcut);
 
     return () => {
-      window.removeEventListener("keydown", handleFindShortcut);
+      globalThis.removeEventListener("keydown", handleFindShortcut);
     };
   }, []);
+
+  // Close sort dropdown menu when clicking elsewhere.
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!sortRef.current) return;
+
+      if (!sortRef.current.contains(event.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+
+    if (isSortOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSortOpen]);
+
+  // Scroll to top.
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(globalThis.scrollY > 300);
+    };
+
+    globalThis.addEventListener("scroll", handleScroll);
+
+    return () => globalThis.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Defaults to A -> Z order unless another is chosen.
+  const sortedSections = useMemo<Section[]>(() => {
+    const collator = new Intl.Collator(undefined, {
+      numeric: true,
+      sensitivity: "base",
+    });
+
+    const sorted = [...sections].sort((a, b) =>
+      collator.compare(a.title ?? "", b.title ?? "")
+    );
+
+    if (sortMode === "alphabetical-desc") {
+      sorted.reverse();
+    }
+
+    return sorted;
+  }, [sections, sortMode]);
+
+  // Defaults to A -> Z order unless another is chosen.
+  const sortedDefinitions = useMemo<Definition[]>(() => {
+    const collator = new Intl.Collator(undefined, {
+      numeric: true,
+      sensitivity: "base",
+    });
+
+    const sorted = [...definitions].sort((a, b) =>
+      collator.compare(a.term ?? "", b.term ?? "")
+    );
+
+    if (sortMode === "alphabetical-desc") {
+      sorted.reverse();
+    }
+
+    return sorted;
+  }, [definitions, sortMode]);
   
   // Deletes a section and refreshes data.
   const handleDeleteSection = useCallback(async (section: Section): Promise<void> => {
@@ -492,7 +580,7 @@ export default function Course() {
   // - Stripping HTML from body
   // - Keeping original reference
   const searchableSections = useMemo<SearchableSection[]>(() => {
-    return sections.map((section) => {
+    return sortedSections.map((section) => {
       const title = section.title ?? "";
       const description = section.description ?? "";
       const bodyText = htmlToText(section.body ?? "");
@@ -507,11 +595,11 @@ export default function Course() {
         raw: section,
       };
     });
-  }, [sections]);
+  }, [sortedSections]);
 
   // Same thing as searchableSections above but for definitions.
   const searchableDefinitions = useMemo<SearchableDefinition[]>(() => {
-    return definitions.map((definition) => {
+    return sortedDefinitions.map((definition) => {
       const term = definition.term ?? "";
       const definitionText = definition.definition ?? "";
       const example = definition.example ?? "";
@@ -526,7 +614,7 @@ export default function Course() {
         raw: definition,
       };
     });
-  }, [definitions]);
+  }, [sortedDefinitions]);
 
   const searchIndex = useMemo<SearchIndex>(() => {
     const sectionsByGram = new Map<string, Set<string>>();
@@ -734,6 +822,143 @@ export default function Course() {
     );
   }, [isSearching, totalSearchResults]);
 
+  // List of all section IDs.
+  const allSectionIds = useMemo<string[]>(() => {
+    return sections.map((section) => section._id);
+  }, [sections]);
+
+  // Checks if every section is currently open.
+  const areAllSectionsOpen = useMemo<boolean>(() => {
+    if (sections.length === 0) return false;
+
+    return allSectionIds.every((id) => openSectionIds.includes(id));
+  }, [allSectionIds, openSectionIds, sections.length]);
+
+  // Opens all sections by adding every section ID to the manual open state.
+  const handleExpandAllSections = useCallback((): void => {
+    setManuallyOpenSectionIds(allSectionIds);
+  }, [allSectionIds]);
+
+  // Closes all manually opened sections.
+  const handleCollapseAllSections = useCallback((): void => {
+    setManuallyOpenSectionIds([]);
+  }, []);
+
+  /* Hotkey Helpers */
+  const clearSearch = useCallback(() => {
+    setQuery("");
+    setActiveResultIndex(0);
+    searchInputRef.current?.blur();
+  }, []);
+
+  const openNewSection = useCallback(() => {
+    setEditSection(null);
+    setOpenCreate(true);
+  }, []);
+
+  const openNewDefinition = useCallback(() => {
+    setEditDefinition(null);
+    setDefinitionOpen(true);
+  }, []);
+
+  const toggleSortMode = useCallback(() => {
+    updateSortMode(
+      sortMode === "alphabetical-asc"
+        ? "alphabetical-desc"
+        : "alphabetical-asc"
+    );
+  }, [sortMode, updateSortMode]);
+
+  const toggleAllSections = useCallback(() => {
+    if (areAllSectionsOpen) {
+      setManuallyOpenSectionIds([]);
+      return;
+    }
+
+    setManuallyOpenSectionIds(allSectionIds);
+  }, [areAllSectionsOpen, allSectionIds]);
+
+  useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const key = e.key.toLowerCase();
+
+      // Detect if user is currently typing in an input area.
+      const isTyping =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+
+      // ESC
+      // Clears the current search and resets navigation.
+      if (key === "escape") {
+        if (query) {
+          e.preventDefault();
+          clearSearch();
+        }
+        return;
+      }
+
+      // Ignore most shortcuts while typing
+      if (isTyping) return;
+
+      // "/" focus search
+      // Brings focus to the search input.
+      if (key === "/") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        return;
+      }
+
+      // "?" show shortcuts
+      // Opens the keyboard shortcuts window.
+      if (key === "?") {
+        e.preventDefault();
+        setShowShortcuts(true);
+        return;
+      }
+
+      // "n" / "Shift + N"
+      // Creates a new section or definition depending on modifier key.
+      if (key === "n") {
+        e.preventDefault();
+
+        if (e.shiftKey) {
+          openNewDefinition();
+        } else {
+          openNewSection();
+        }
+
+        return;
+      }
+
+      // "a" toggle sort
+      // Switches between ascending and descending alphabetical order.
+      if (key === "a") {
+        e.preventDefault();
+        toggleSortMode();
+        return;
+      }
+
+      // "x" expand/collapse all
+      // Toggles all sections between expanded and collapsed states.
+      if (key === "x") {
+        e.preventDefault();
+        toggleAllSections();
+      }
+    };
+
+    globalThis.addEventListener("keydown", handleKeydown);
+    return () => globalThis.removeEventListener("keydown", handleKeydown);
+  }, [
+    query,
+    clearSearch,
+    openNewSection,
+    openNewDefinition,
+    toggleSortMode,
+    toggleAllSections,
+  ]);
+
   // Controls whether the search drawer is open on smaller screens.
   const [isSearchDrawerOpen, setIsSearchDrawerOpen] = useState(false);
 
@@ -748,7 +973,7 @@ export default function Course() {
         2xl:[--sidebar-width:clamp(12rem,20vw,37rem)]
       "
     >
-      <CourseSidebar sections={sections} courseCode={courseCode} />
+      <CourseSidebar sections={sortedSections} courseCode={courseCode} />
       <div className="fixed top-20 left-4 z-50 md:hidden">
         <SidebarTrigger className="bg-secondary text-background hover:cursor-pointer hover:bg-primary hover:text-foreground" />
       </div>
@@ -800,6 +1025,21 @@ export default function Course() {
                 placeholder="Search"
                 className="h-8 w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
               />
+
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    setActiveResultIndex(0);
+                    searchInputRef.current?.focus();
+                  }}
+                  className="p-1 rounded-full hover:bg-muted transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
             {/* Search navigation */}
@@ -869,24 +1109,120 @@ export default function Course() {
                 <h2 className="text-2xl font-bold font-funnel text-left w-full mt-4 sm:text-3xl">
                   Sections
                 </h2>
-                <HoverCard>
-                  <HoverCardTrigger asChild>
-                    <CirclePlus
-                      className="hover:text-secondary hover:cursor-pointer"
-                      aria-label="Add new section"
-                      onClick={() => {
-                        setEditSection(null);
-                        setOpenCreate(true);
+
+                <div className="flex items-center gap-2">
+                  <div ref={sortRef} className="relative">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsSortOpen((prev) => !prev);
                       }}
-                    />
-                  </HoverCardTrigger>
-                  <HoverCardContent side="top" className="bg-background">
-                    <div className="font-instrument text-xs text-center text-foreground">
-                      Add a new section to your course page to organize your
-                      content and discussions.
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
+                      className="
+                        whitespace-nowrap
+                        border-secondary text-secondary
+                        hover:bg-secondary hover:text-background
+                        transition-colors
+                      "
+                    >
+                      {sortMode === "alphabetical-asc" ? "A → Z" : "Z → A"}
+                      <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+
+                    {isSortOpen && (
+                      <div className="absolute right-0 mt-2 w-40 rounded-md border border-secondary/40 bg-background shadow-lg z-50 overflow-hidden">
+                        <button
+                          onClick={() => {
+                            updateSortMode("alphabetical-asc");
+                            setIsSortOpen(false);
+                          }}
+                          className="
+                            w-full text-left px-3 py-2 text-sm
+                            text-secondary
+                            hover:bg-secondary hover:text-background
+                            transition-colors
+                          "
+                        >
+                          A → Z
+                        </button>
+
+                        <div className="h-px bg-secondary/20" />
+
+                        <button
+                          onClick={() => {
+                            updateSortMode("alphabetical-desc");
+                            setIsSortOpen(false);
+                          }}
+                          className="
+                            w-full text-left px-3 py-2 text-sm
+                            text-secondary
+                            hover:bg-secondary hover:text-background
+                            transition-colors
+                          "
+                        >
+                          Z → A
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {sections.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={
+                        areAllSectionsOpen
+                          ? handleCollapseAllSections
+                          : handleExpandAllSections
+                      }
+                      className="
+                        whitespace-nowrap
+                        border-secondary text-secondary
+                        hover:bg-secondary hover:text-background
+                        transition-colors
+                      "
+                    >
+                      {areAllSectionsOpen ? "Collapse all" : "Expand all"}
+                    </Button>
+                  )}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowShortcuts(true)}
+                    className="
+                      whitespace-nowrap
+                      border-secondary text-secondary
+                      hover:bg-secondary hover:text-background
+                      transition-colors
+                    "
+                  >
+                    Shortcuts
+                  </Button>
+
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <CirclePlus
+                        className="hover:text-secondary hover:cursor-pointer"
+                        aria-label="Add new section"
+                        onClick={() => {
+                          setEditSection(null);
+                          setOpenCreate(true);
+                        }}
+                      />
+                    </HoverCardTrigger>
+                    <HoverCardContent side="top" className="bg-background">
+                      <div className="font-instrument text-xs text-center text-foreground">
+                        Add a new section to your course page to organize your
+                        content and discussions.
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                </div>
               </div>
 
               {/* Display section dialog */}
@@ -904,7 +1240,7 @@ export default function Course() {
 
               {/* Display sections */}
               <div className="bg-background p-2 rounded-2xl w-full space-y-3">
-                {sections.map((section) => {
+                {sortedSections.map((section) => {
                   const isMatch = matchingSectionIds.has(section._id);
                   const isOpen = openSectionIds.includes(section._id);
 
@@ -980,7 +1316,7 @@ export default function Course() {
               <Separator orientation="horizontal" />
 
               <MemoizedDefinitionTable
-                definitions={definitions}
+                definitions={sortedDefinitions}
                 onEdit={handleEditDefinitionOpen}
                 onDelete={handleDeleteDefinition}
                 searchQuery={query}
@@ -992,79 +1328,184 @@ export default function Course() {
               />
             </div>
 
-            {/* Right column: search */}
-            <div className="hidden xl:block">
-              <div className="sticky top-20 z-30">
-                {/* Search */}
-                <div className="w-full">
-                  <div className="flex w-full items-center gap-1 rounded-full border border-border/60 bg-background/85 px-3 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/70">
-                    <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+            {/* Right Column Search */}
+              <div className="hidden xl:block">
+                <div className="sticky top-20 z-30">
+                  {/* Search */}
+                  <div className="w-full space-y-2">
+                    <div className="flex w-full items-center gap-1 rounded-full border border-border/60 bg-background/85 px-3 py-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/70">
+                      <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
 
-                    <Input
-                      ref={searchInputRef}
-                      value={query}
-                      onChange={(e) => {
-                        setQuery(e.target.value);
-                        setActiveResultIndex(0);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
+                      <Input
+                        ref={searchInputRef}
+                        value={query}
+                        onChange={(e) => {
+                          setQuery(e.target.value);
+                          setActiveResultIndex(0);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
 
-                          if (!shouldHandleRepeatedNavigation(e.repeat)) {
-                            return;
+                            if (!shouldHandleRepeatedNavigation(e.repeat)) {
+                              return;
+                            }
+
+                            if (e.shiftKey) {
+                              goToPreviousResult();
+                            } else {
+                              goToNextResult();
+                            }
                           }
+                        }}
+                        placeholder="Search"
+                        className="h-8 w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
 
-                          if (e.shiftKey) {
-                            goToPreviousResult();
-                          } else {
-                            goToNextResult();
-                          }
-                        }
-                      }}
-                      placeholder="Search"
-                      className="h-8 w-full border-0 bg-transparent px-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-
-                    {isSearching && (
-                      <>
-                        <span className="whitespace-nowrap text-xs text-muted-foreground">
-                          {totalSearchResults > 0
-                            ? `${safeActiveResultIndex + 1}/${totalSearchResults}`
-                            : "0"}
-                        </span>
-
-                        <Button
+                      {query && (
+                        <button
                           type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 shrink-0 rounded-full"
-                          onClick={() => goToPreviousResult()}
-                          disabled={totalSearchResults === 0}
-                          aria-label="Previous result"
+                          onClick={() => {
+                            setQuery("");
+                            setActiveResultIndex(0);
+                            searchInputRef.current?.focus();
+                          }}
+                          className="p-1 rounded-full hover:bg-muted transition-colors"
+                          aria-label="Clear search"
                         >
-                          <ChevronUp className="h-4 w-4" />
-                        </Button>
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
 
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 shrink-0 rounded-full"
-                          onClick={() => goToNextResult()}
-                          disabled={totalSearchResults === 0}
-                          aria-label="Next result"
-                        >
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
+                      {isSearching && (
+                        <>
+                          <span className="whitespace-nowrap text-xs text-muted-foreground">
+                            {totalSearchResults > 0
+                              ? `${safeActiveResultIndex + 1}/${totalSearchResults}`
+                              : "0"}
+                          </span>
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 rounded-full"
+                            onClick={() => goToPreviousResult()}
+                            disabled={totalSearchResults === 0}
+                            aria-label="Previous result"
+                          >
+                            <ChevronUp className="h-4 w-4" />
+                          </Button>
+
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 rounded-full"
+                            onClick={() => goToNextResult()}
+                            disabled={totalSearchResults === 0}
+                            aria-label="Next result"
+                          >
+                            <ChevronDown className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+
+            {showScrollTop && (
+              <Button
+                onClick={scrollToTop}
+                size="icon"
+                className="
+                  fixed bottom-6 right-6 z-50
+                  border-secondary text-secondary
+                  hover:bg-secondary hover:text-background
+                  shadow-lg
+                "
+                variant="outline"
+              >
+                <ChevronUp className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
+
+        {showShortcuts && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+            onMouseDown={() => setShowShortcuts(false)}
+          >
+            <div
+              className="bg-background rounded-xl shadow-xl p-6 w-[90%] max-w-md"
+              onMouseDown={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="keyboard-shortcuts-title"
+            >
+              <h2 id="keyboard-shortcuts-title" className="text-lg font-bold mb-4">
+                Keyboard Shortcuts
+              </h2>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Focus search</span>
+                  <span className="font-mono">Ctrl+F or /</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Clear search</span>
+                  <span className="font-mono">Esc</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Next result</span>
+                  <span className="font-mono">Enter</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Previous result</span>
+                  <span className="font-mono">Shift+Enter</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>New section</span>
+                  <span className="font-mono">N</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>New definition</span>
+                  <span className="font-mono">Shift+N</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Toggle sort</span>
+                  <span className="font-mono">A</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Expand/collapse all</span>
+                  <span className="font-mono">X</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Show shortcuts</span>
+                  <span className="font-mono">?</span>
+                </div>
+              </div>
+
+              <div className="mt-4 flex justify-end">
+                <Button
+                  onClick={() => setShowShortcuts(false)}
+                  variant="outline"
+                  size="sm"
+                  className="
+                    whitespace-nowrap
+                    border-secondary text-secondary
+                    hover:bg-secondary hover:text-background
+                    transition-colors
+                  "
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </SidebarInset>
     </SidebarProvider>
   );
