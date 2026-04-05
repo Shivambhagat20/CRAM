@@ -1,4 +1,6 @@
 import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { loadTheme } from "@/lib/theme";
 import Home from "./pages/Home";
 import Course from "./pages/Course";
 import MainLayout from "./components/layout/MainLayout";
@@ -8,9 +10,12 @@ import Profile from "./pages/Profile";
 import PasswordReset from "./pages/PasswordReset";
 import { AuthDialogProvider } from "./context/AuthDialogProvider";
 
-
-
 function App() {
+
+  useEffect(() => {
+    loadTheme();
+  }, []);
+
   return (
     // Wrap the app with dialog provider for global access
     <AuthDialogProvider>
