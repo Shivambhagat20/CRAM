@@ -389,7 +389,7 @@ export default function Course() {
 
   // Scroll to top.
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    globalThis.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   if (!courseId) throw new Error("Missing course id");
@@ -434,10 +434,10 @@ export default function Course() {
       }
     };
 
-    window.addEventListener("keydown", handleFindShortcut);
+    globalThis.addEventListener("keydown", handleFindShortcut);
 
     return () => {
-      window.removeEventListener("keydown", handleFindShortcut);
+      globalThis.removeEventListener("keydown", handleFindShortcut);
     };
   }, []);
 
@@ -463,12 +463,12 @@ export default function Course() {
   // Scroll to top.
   useEffect(() => {
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
+      setShowScrollTop(globalThis.scrollY > 300);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    globalThis.addEventListener("scroll", handleScroll);
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => globalThis.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Defaults to A -> Z order unless another is chosen.
@@ -948,8 +948,8 @@ export default function Course() {
       }
     };
 
-    window.addEventListener("keydown", handleKeydown);
-    return () => window.removeEventListener("keydown", handleKeydown);
+    globalThis.addEventListener("keydown", handleKeydown);
+    return () => globalThis.removeEventListener("keydown", handleKeydown);
   }, [
     query,
     clearSearch,
@@ -1436,13 +1436,18 @@ export default function Course() {
         {showShortcuts && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-            onClick={() => setShowShortcuts(false)}
+            onMouseDown={() => setShowShortcuts(false)}
           >
             <div
               className="bg-background rounded-xl shadow-xl p-6 w-[90%] max-w-md"
-              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="keyboard-shortcuts-title"
             >
-              <h2 className="text-lg font-bold mb-4">Keyboard Shortcuts</h2>
+              <h2 id="keyboard-shortcuts-title" className="text-lg font-bold mb-4">
+                Keyboard Shortcuts
+              </h2>
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
