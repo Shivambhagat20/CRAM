@@ -376,6 +376,11 @@ export default function Course() {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement | null>(null);
 
+  const updateSortMode = useCallback((nextSortMode: SortMode) => {
+    setSortMode(nextSortMode);
+    setActiveResultIndex(0);
+  }, []);
+
   // Navigation
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -465,11 +470,6 @@ export default function Course() {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Reset active index when sort changes.
-  useEffect(() => {
-    setActiveResultIndex(0);
-  }, [sortMode]);
 
   // Defaults to A -> Z order unless another is chosen.
   const sortedSections = useMemo<Section[]>(() => {
@@ -902,8 +902,8 @@ export default function Course() {
       // "a" toggle sort
       if (key === "a") {
         e.preventDefault();
-        setSortMode((prev) =>
-          prev === "alphabetical-asc"
+        updateSortMode(
+          sortMode === "alphabetical-asc"
             ? "alphabetical-desc"
             : "alphabetical-asc"
         );
@@ -928,8 +928,8 @@ export default function Course() {
     query,
     areAllSectionsOpen,
     allSectionIds,
-    setManuallyOpenSectionIds,
-    setSortMode,
+    sortMode,
+    updateSortMode,
   ]);
 
   // Controls whether the search drawer is open on smaller screens.
@@ -1108,7 +1108,7 @@ export default function Course() {
                       <div className="absolute right-0 mt-2 w-40 rounded-md border border-secondary/40 bg-background shadow-lg z-50 overflow-hidden">
                         <button
                           onClick={() => {
-                            setSortMode("alphabetical-asc");
+                            updateSortMode("alphabetical-asc");
                             setIsSortOpen(false);
                           }}
                           className="
@@ -1125,7 +1125,7 @@ export default function Course() {
 
                         <button
                           onClick={() => {
-                            setSortMode("alphabetical-desc");
+                            updateSortMode("alphabetical-desc");
                             setIsSortOpen(false);
                           }}
                           className="
