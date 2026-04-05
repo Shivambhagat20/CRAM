@@ -14,16 +14,12 @@ const PRESET_THEMES = [
 
 // Lets the user select a theme color for the site.
 export default function ThemeSelector() {
-  const [color, setColor] = useState(DEFAULT_THEME);
+  const [color, setColor] = useState(() => {
+    if (typeof window === "undefined") return DEFAULT_THEME;
+    return localStorage.getItem("theme") ?? DEFAULT_THEME;
+  });
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved) {
-      setColor(saved);
-    }
-  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
