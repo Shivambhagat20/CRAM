@@ -133,7 +133,6 @@ export default function DefinitionTable({
                         <TableHead className="w-3/12">Definition</TableHead>
                         <TableHead className="w-4/12">Example</TableHead>
                         <TableHead className="w-1/12">Added By</TableHead>
-                        <TableHead className="w-1/12">Updated</TableHead>
                         <TableHead className="w-1/12 text-center">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -216,7 +215,6 @@ export default function DefinitionTable({
                                     )}
                                 </AvatarGroup>
                             </TableCell>
-                            <TableCell></TableCell>
                             <TableCell className="text-right">
                                 <HoverCard>
                                     <HoverCardTrigger asChild>
