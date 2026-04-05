@@ -15,7 +15,9 @@ const PRESET_THEMES = [
 // Lets the user select a theme color for the site.
 export default function ThemeSelector() {
   const [color, setColor] = useState(() => {
-    if (typeof window === "undefined") return DEFAULT_THEME;
+    if (typeof globalThis === "undefined" || typeof globalThis.window === "undefined") {
+      return DEFAULT_THEME;
+    }
     return localStorage.getItem("theme") ?? DEFAULT_THEME;
   });
   const [open, setOpen] = useState(false);
