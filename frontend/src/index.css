@@ -150,4 +150,53 @@
   ::selection {
     @apply bg-primary-foreground text-secondary;
   }
+
+  .ProseMirror:focus {
+    outline: none;
+  }
+
+  /* Sidebar scrollbar */
+  .sidebar::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  .sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Hidden by default */
+  .sidebar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 0;
+  }
+
+  /* Show on hover */
+  .sidebar:hover::-webkit-scrollbar-thumb {
+    background: var(--secondary); /* user theme color */
+  }
+
+  .sidebar:hover::-webkit-scrollbar-thumb:hover {
+    filter: brightness(0.85);
+  }
+
+  /* Firefox */
+  .sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .sidebar:hover {
+    scrollbar-color: var(--secondary) transparent;
+  }
+
+  /* Mobile */
+  @media (pointer: coarse) {
+    .sidebar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .sidebar {
+      scrollbar-width: none;
+    }
+  }
 }
