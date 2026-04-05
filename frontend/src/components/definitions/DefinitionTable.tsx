@@ -156,7 +156,7 @@ export default function DefinitionTable({
                             ref={isActiveDefinition ? activeRowRef : null}
                             className={isActiveDefinition ? "bg-secondary/10" : undefined}
                         >
-                            <TableCell className="font-medium break-all whitespace-normal">
+                            <TableCell className="font-medium wrap-break-word whitespace-normal">
                                 <HighlightedText
                                     text={def.term ?? ""}
                                     query={searchQuery}
@@ -164,7 +164,7 @@ export default function DefinitionTable({
                                     activeOccurrenceIndex={isActiveDefinition ? activeOccurrenceIndex : null}
                                 />
                             </TableCell>
-                            <TableCell className="break-all whitespace-normal">
+                            <TableCell className="wrap-break-word whitespace-normal">
                                 <HighlightedText
                                     text={def.definition ?? ""}
                                     query={searchQuery}
@@ -172,7 +172,7 @@ export default function DefinitionTable({
                                     activeOccurrenceIndex={isActiveDefinition ? activeOccurrenceIndex : null}
                                 />
                             </TableCell>
-                            <TableCell className="break-all whitespace-normal">
+                            <TableCell className="wrap-break-word whitespace-normal">
                                 <HighlightedText
                                     text={def.example ?? ""}
                                     query={searchQuery}
