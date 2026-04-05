@@ -32,6 +32,7 @@ import { getCourseCode } from "@/utils/courseHelpers";
 import { ApiError } from "@/lib/errors/ApiError";
 import { useAuthDialog } from "@/context/useAuthDialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Kbd } from "@/components/ui/kbd";
 
 /* Preprocessing Data */
 
@@ -1452,39 +1453,39 @@ export default function Course() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Focus search</span>
-                  <span className="font-mono">Ctrl+F or /</span>
+                  <span className="font-mono"><Kbd>Ctrl+F</Kbd> or <Kbd>/</Kbd></span>
                 </div>
                 <div className="flex justify-between">
                   <span>Clear search</span>
-                  <span className="font-mono">Esc</span>
+                  <span className="font-mono"><Kbd>Esc</Kbd></span>
                 </div>
                 <div className="flex justify-between">
                   <span>Next result</span>
-                  <span className="font-mono">Enter</span>
+                  <span className="font-mono"><Kbd>Enter</Kbd></span>
                 </div>
                 <div className="flex justify-between">
                   <span>Previous result</span>
-                  <span className="font-mono">Shift+Enter</span>
+                  <span className="font-mono"><Kbd>Shift+Enter</Kbd></span>
                 </div>
                 <div className="flex justify-between">
                   <span>New section</span>
-                  <span className="font-mono">N</span>
+                  <span className="font-mono"><Kbd>N</Kbd></span>
                 </div>
                 <div className="flex justify-between">
                   <span>New definition</span>
-                  <span className="font-mono">Shift+N</span>
+                  <span className="font-mono"><Kbd>Shift+N</Kbd></span>
                 </div>
                 <div className="flex justify-between">
                   <span>Toggle sort</span>
-                  <span className="font-mono">A</span>
+                  <span className="font-mono"><Kbd>A</Kbd></span>
                 </div>
                 <div className="flex justify-between">
                   <span>Expand/collapse all</span>
-                  <span className="font-mono">X</span>
+                  <span className="font-mono"><Kbd>X</Kbd></span>
                 </div>
                 <div className="flex justify-between">
                   <span>Show shortcuts</span>
-                  <span className="font-mono">?</span>
+                  <span className="font-mono"><Kbd>?</Kbd></span>
                 </div>
               </div>
 
