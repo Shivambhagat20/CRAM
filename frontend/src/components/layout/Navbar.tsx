@@ -17,6 +17,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { LogOut, User } from "lucide-react";
 import { AVATAR_MAP } from "@/constants/avatars";
 
+import ThemeSelector from "@/components/ui/themeSelector";
+
 function Navbar() {
     const [authOpen, setAuthOpen] = useState(false);
     const [authMode, setAuthMode] = useState<"login" | "signup">("login");
@@ -26,7 +28,7 @@ function Navbar() {
         <>
             <nav 
                 aria-label="Navigation Bar"
-                className="w-full border-none bg-background shadow-2xl "
+                className="w-full border-none bg-background"
             >
             <div className="w-full sm:w-full md:w-4/5 lg:w-3/4 xl:w-2/3 2xl:w-1/2 mx-auto flex flex-row items-center justify-between px-4 py-3 ">
                 <Link 
@@ -37,6 +39,7 @@ function Navbar() {
                 </Link>
 
                 <div className="flex gap-6 font-instrument text-foreground text-base sm:text-lg md:text-xl lg:text-2xl 2xl:text-3xl">
+                <ThemeSelector />
                 {isAuthenticated ? (
                     <Menubar className="border-none">
                         <MenubarMenu >
