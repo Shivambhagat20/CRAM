@@ -115,6 +115,9 @@ export default function Home() {
   const debouncedQuery = useDebouncedValue(query, 0);
   const deferredQuery = useDeferredValue(debouncedQuery);
 
+  // Hotkey listener
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
   type ListHandle = {
     readonly element: HTMLDivElement | null;
     scrollToRow: (config: {
@@ -218,6 +221,41 @@ export default function Home() {
     if (!q) return allCourses;
     return allCourses.filter((c) => c._search.includes(q));
   }, [allCourses, deferredQuery]);
+
+  // Search hotkeys
+  useEffect(() => {
+    const handleFindShortcut = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+
+      // Ctrl+F or Cmd+F
+      if ((e.ctrlKey || e.metaKey) && key === "f") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }
+
+      // "/" shortcut (optional but matches Course page)
+      if (key === "/") {
+        const target = e.target as HTMLElement;
+
+        const isTyping =
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable;
+
+        if (!isTyping) {
+          e.preventDefault();
+          searchInputRef.current?.focus();
+        }
+      }
+    };
+
+    globalThis.addEventListener("keydown", handleFindShortcut);
+
+    return () => {
+      globalThis.removeEventListener("keydown", handleFindShortcut);
+    };
+  }, []);
 
   // Reset cache when results change (prevents stale heights causing gaps).
   useEffect(() => {
@@ -367,6 +405,7 @@ export default function Home() {
         >
           <InputGroup className="h-11 sm:h-12 rounded-xl shadow-md border-none bg-search">
             <InputGroupInput
+              ref={searchInputRef}
               type="search"
               placeholder="Search by course name or code..."
               value={query}
