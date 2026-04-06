@@ -10,7 +10,7 @@ exports.getUserById = async (id) => {
     if (user) delete user.passwordHash;
     if (process.env.NODE_ENV != "loadtest" ){
         delete user.verificationCode; 
-        // delete user.email; //might want to consider hiding emails, but currently implementation rely on it, maybe hide it from majority of users.
+        //might want to consider hiding emails, but currently implementation rely on it, maybe hide it from majority of users.
     }
     return user;
 }
