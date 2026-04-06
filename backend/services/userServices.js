@@ -65,7 +65,6 @@ exports.changeEmailById = async (id, email) => {
 //confirms user's verification code is correct
 exports.confirmEmailChange = async (id, verificationCode) => {
     const user = await this.getUserById(id);
-    console.log(verificationCode);
 
     if (!user) throw new Error('Invalid user');
 

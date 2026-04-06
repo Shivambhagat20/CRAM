@@ -63,11 +63,9 @@ export default function DefinitionForm({
 
       const  payload = { ...values, courseCode }
 
-      if( mode === "create"){
-        console.log(payload)
+      if( mode === "create") {
         onSuccess?.(await createDefinition(payload));
       } else if (mode === "edit" && initialValues?._id){
-        console.log({ definitionId: initialValues._id, ...payload })
           onSuccess?.(
           await updateDefinition({ definitionId: initialValues._id, ...payload })
         );
@@ -76,7 +74,7 @@ export default function DefinitionForm({
       form.reset();
     } catch (error: unknown) {
       console.error("Submission failed", error);
-       if (error instanceof ApiError && error.status === 401) {
+      if (error instanceof ApiError && error.status === 401) {
         openAuthDialog("login");
       } else {
         alert("Failed to save definition");
