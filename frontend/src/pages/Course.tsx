@@ -10,7 +10,6 @@ import CourseSidebar from "@/components/layout/CourseSidebar";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import {
   HoverCard,
   HoverCardContent,
@@ -1313,8 +1312,6 @@ export default function Course() {
                 initialValues={editDefinition ?? undefined}
                 onSuccess={handleAddOrUpdateDefinition}
               />
-
-              <Separator orientation="horizontal" />
 
               <MemoizedDefinitionTable
                 definitions={sortedDefinitions}

@@ -454,11 +454,13 @@ export default function SectionCard({ section, definitions, onEdit, onDelete, op
                     <HoverCard>
                         <HoverCardTrigger asChild>
                             <Button
-                                className=" hover:text-secondary hover:cursor-pointer bg-background text-foreground"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground/80 hover:text-secondary hover:bg-secondary/10 hover:cursor-pointer"
                                 aria-label="Edit section"
                                 onClick={() => onEdit(section)}
-                            >
-                                <PencilLine />
+                                >
+                                <PencilLine className="h-4 w-4" />
                             </Button>
                         </HoverCardTrigger>
 
@@ -477,10 +479,12 @@ export default function SectionCard({ section, definitions, onEdit, onDelete, op
                             <DialogTrigger asChild>
                             <HoverCardTrigger asChild>
                                 <Button
-                                className="hover:text-destructive hover:cursor-pointer hover:underline bg-background text-foreground"
-                                aria-label="Delete section"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10 hover:cursor-pointer"
+                                    aria-label="Delete section"
                                 >
-                                <Trash2 />
+                                    <Trash2 className="h-4 w-4" />
                                 </Button>
                             </HoverCardTrigger>
                             </DialogTrigger>
