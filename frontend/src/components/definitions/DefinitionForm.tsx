@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as z from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -16,8 +16,7 @@ import { createDefinition, updateDefinition } from "@/api/sectionsApi";
 import type { Definition } from "@/api/sectionsApi";
 import { ApiError } from "@/lib/errors/ApiError";
 import { useAuthDialog } from "@/context/useAuthDialog";
-
-
+import { BadgeAlert } from "lucide-react";
 
 type FormProps = {
   mode: "create" | "edit";
@@ -51,6 +50,8 @@ export default function DefinitionForm({
   });
 
   const {openAuthDialog} = useAuthDialog();
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialValues) {
@@ -59,15 +60,15 @@ export default function DefinitionForm({
   }, [initialValues, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setServerError(null); // remove old errors
+
     try {
+      setLoading(true);
+      const payload = { ...values, courseCode }
 
-      const  payload = { ...values, courseCode }
-
-      if( mode === "create"){
-        console.log(payload)
+      if( mode === "create") {
         onSuccess?.(await createDefinition(payload));
-      } else if (mode === "edit" && initialValues?._id){
-        console.log({ definitionId: initialValues._id, ...payload })
+      } else if (mode === "edit" && initialValues?._id) {
           onSuccess?.(
           await updateDefinition({ definitionId: initialValues._id, ...payload })
         );
@@ -76,11 +77,15 @@ export default function DefinitionForm({
       form.reset();
     } catch (error: unknown) {
       console.error("Submission failed", error);
-       if (error instanceof ApiError && error.status === 401) {
+      if (error instanceof ApiError && error.status === 401) {
         openAuthDialog("login");
+        setServerError(error.message ?? "Only logged-in users may create sections.");
       } else {
         alert("Failed to save definition");
+        setServerError(error instanceof Error ? error.message : "Something went wrong.");
       }
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -132,9 +137,25 @@ export default function DefinitionForm({
           )}
         />
 
-        <Button type="submit">
-          {mode === "create" ? "Create" : "Update"}
+        <Button
+          type="submit"
+          disabled={loading}
+          className="bg-secondary hover:cursor-pointer hover:bg-primary hover:text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading
+            ? mode === "create"
+              ? "Creating definition..."
+              : "Updating definition..."
+            : mode === "create"
+              ? "Create"
+              : "Update"}
         </Button>
+
+        {serverError && (
+          <div className="flex flex-row justify-center bg-secondary text-red-800 font-bold px-4 py-2 rounded-md text-sm mt-2">
+            <BadgeAlert />{serverError}
+          </div>
+        )}
       </form>
     </Form>
   );

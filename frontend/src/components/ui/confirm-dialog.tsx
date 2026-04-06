@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription} from "@/components/ui/dialog";
 import {Button} from "@/components/ui/button";
 
 type ConfirmDialogProps = {
@@ -11,11 +11,17 @@ type ConfirmDialogProps = {
 export function ConfirmDialog({ open, onConfirm, onCancel, message }: ConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onCancel()}>
-        <DialogContent className="max-w-sm bg-primary p-6 rounded-xl shadow-lg border-0">
+        <DialogContent 
+            className="max-w-sm bg-primary p-6 rounded-xl shadow-lg border-0"
+            aria-describedby="confirm an action"
+        >
             <DialogHeader>
                 <DialogTitle className="text-secondary">
                     Are you sure?
                 </DialogTitle>
+                <DialogDescription>
+                    This action cannot be undone.
+                </DialogDescription>
             </DialogHeader>
             <p className="text-sm text-foreground mt-2">
                 {message ?? "You have unsaved changes. Closing will discard them."}

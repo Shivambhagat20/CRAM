@@ -1,4 +1,4 @@
-const { checkSchema, validationResult } = require('express-validator');
+const { checkSchema } = require('express-validator');
 
 // check the fields of objects coming in. forces certain fields and sanitizes others.
 exports.registerSchema = checkSchema({
@@ -85,15 +85,3 @@ exports.registerSchema = checkSchema({
         }
     }
 });
-
-// send the error to client
-exports.validate = (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ 
-            success: false, 
-            errors: errors.array() 
-        });
-    }
-    next();
-};

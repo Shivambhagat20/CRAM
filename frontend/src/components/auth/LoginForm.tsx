@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { loginUser, sendPasswordResetLink } from "@/api/userApi";
+import PasswordInput from "../ui/PasswordInput";
 import { useAuth } from "@/hooks/useAuth";
 
 interface LoginFormProps {
@@ -79,17 +80,10 @@ export default function LoginForm({ setOpen }: LoginFormProps) {
                 </div>
 
                 <div className="flex flex-col gap-0">
-                    <input 
-                        type="password" 
-                        placeholder="Password" 
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)} 
-                        className="font-funnel font-thin border-2 border-foreground rounded-sm p-1" 
-                        required
-                    />
+                    <PasswordInput placeholder="Password" password={password} setPassword={setPassword} />
 
                     <Button 
-                    type="button"
+                        type="button"
                         className="justify-start font-bold text-foreground hover:text-secondary hover:cursor-pointer"
                         onClick={() => setForgotPassword(true)}
                     >

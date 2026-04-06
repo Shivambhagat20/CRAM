@@ -15,7 +15,7 @@ exports.requireAuth = (req, res, next) => {
 // Go next() if all succeeds
 exports.requireVerification = (req, res, next) => {
     exports.requireAuth(req, res, () => {
-        if (!req.session.user.is_verified) {
+        if (!req.session.user.isVerified) {
             return res.status(403).json({error: "Email verification required to perform this action."});
         }
         next();

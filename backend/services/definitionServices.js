@@ -2,10 +2,9 @@ const definitionRepository = require('../repositories/definitionRepository');
 const userService = require('./userServices');
 
 
-// gets defintions that share a course code, gets the contributers and assembles them
+// gets definitions that share a course code, gets the contributors and assembles them
 exports.getDefinitionsByCourseCode = async (courseCode) => {
     const definitions = await definitionRepository.getDefinitionsByCourseCode(courseCode);
-    console.log("Fetched definitions from DB:", definitions);
 
     if (!definitions || definitions.length === 0) return [];
 
@@ -13,12 +12,10 @@ exports.getDefinitionsByCourseCode = async (courseCode) => {
     const userIds = [
         ...new Set(definitions.flatMap(def => (def.contributors ?? []).map(contributor => contributor.userId))),
     ];
-    console.log("Unique contributor userIds:", userIds);
 
     // fetch all users at once
     const users = await userService.getUsersByIds(userIds);
     const userMap = Object.fromEntries(users.map(user => [user._id.toString(), user]));
-    console.log("Fetched users:", users);
 
     // enrich contributors in definitions
     const enrichedDefinitions = definitions.map(def => ({
@@ -26,11 +23,10 @@ exports.getDefinitionsByCourseCode = async (courseCode) => {
         contributors: (def.contributors ?? []).map(contributor => ({
             ...contributor,
             username: userMap[contributor.userId.toString()]?.username,
-            profilePic: userMap[contributor.userId.toString()]?.profile_pic,
+            profilePic: userMap[contributor.userId.toString()]?.profilePic,
         })),
     }));
 
-    console.log("Enriched definitions:", enrichedDefinitions);
     return enrichedDefinitions;
 };
 

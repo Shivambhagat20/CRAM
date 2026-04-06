@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
-    user_name: {
+    username: {
         type: String, required: true
     },
-    password_hash: {
+    passwordHash: {
         type: String, required: true
     },
     role: {
@@ -13,29 +13,29 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String, required: true, unique: true
     },
-    pending_email: {
+    pendingEmail: {
         type: String, required: false
     },
-    profile_pic: {
+    profilePic: {
         type: String,
     },
-    is_verified: {
+    isVerified: {
         type: Boolean, default: false
     },
-    verification_code: {
+    verificationCode: {
         type: String, required: false
     },
-    reset_token: {
+    resetToken: {
         type: String, required: false
     },
-    reset_token_expiry: {
+    resetTokenExpiry: {
         type: Date, required: false
     },
     contributions: [
         {
-            ref_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+            refId: { type: mongoose.Schema.Types.ObjectId, required: true },
             type: { type: String, enum: ['section', 'definition'], required: true },
-            course_code: { type: String, required: true },
+            courseCode: { type: String, required: true },
             date: { type: Date, required: true }
         }
     ]

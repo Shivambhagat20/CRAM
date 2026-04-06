@@ -16,9 +16,9 @@ import ChangeEmailForm from "@/components/profile/ChangeEmailForm";
 import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
 
 interface Contribution{
-    ref_id: string;
+    refId: string;
     type: "section" | "definition";
-    course_code: string;
+    courseCode: string;
     date: string;
 }
 
@@ -91,7 +91,7 @@ export default function Profile() {
         };
 
         update();
-    }, [selectedPic, user, setUser]);
+    }, [selectedPic]);
 
     // set avatar key to be the user if they're on their own page
     // otherwise, to the key for that profile
@@ -357,8 +357,8 @@ export default function Profile() {
                             <XAxis dataKey="label" tickLine={false} tickMargin={10} axisLine={false} />
                             <ChartTooltip content={<ChartTooltipContent />} />
 
-                            <Bar dataKey="sections" fill="#2563eb" radius={[4, 4, 0, 0]} />
-                            <Bar dataKey="definitions" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="sections" fill="#E6CE53" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="definitions" fill="#67D1FD" radius={[4, 4, 0, 0]} />
                             <ChartLegend />
                         </BarChart>
                     </ChartContainer>
@@ -371,23 +371,23 @@ export default function Profile() {
                     {/* Populate recent activity */}
                     <div className="flex flex-col gap-2">
                         {recentContributions.map((contribution) => { 
-                            const courseId = contribution.course_code.toLowerCase().replace(" ","-")
+                            const courseId = contribution.courseCode.toLowerCase().replace(" ","-")
 
                             // Color activity backgrounds depending on the type of contribution
                             const contributionBg = contribution.type === "section"
-                                ? "bg-blue-500"
+                                ? "#E6CE53"
                                 : contribution.type === "definition"
-                                ? "bg-green-500"
-                                : "bg-background";
+                                ? "#67D1FD"
+                                : "#ffffff";
 
                             return (
-                                <div key={contribution.ref_id} className={`flex flex-row justify-between ${contributionBg} p-2 rounded-lg`}>
+                                <div key={contribution.refId} className={`flex flex-row justify-between p-2 rounded-lg text-background`} style={{ backgroundColor: contributionBg }}>
                                     <p className="font-instrument font-light text-sm sm:text-base">
                                         <Link
                                             to={`/course/${courseId}`}
-                                            className="hover:underline hover:text-secondary"
+                                            className="hover:underline hover:text-foreground"
                                         >
-                                            {contribution.course_code}
+                                            {contribution.courseCode}
                                         </Link> 
                                     </p>
                                     <p className="font-instrument font-medium text-sm sm:text-base">

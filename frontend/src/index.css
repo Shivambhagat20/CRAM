@@ -57,17 +57,17 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklab(18.46% 0.002 -0.02);
+  --background: oklch(0.2035 0.0016 197.03);
   --foreground: oklab(94.61% 0.000 0.00);
-  --card: oklab(28.095% -0.0136 -0.04764);
+  --card: oklch(0.2745 0.0663 253.93);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklab(28.095% -0.0136 -0.04764);
-  --primary-foreground: oklab(94.61% 0.000 0.00);
-  --secondary: oklab(86.95% -0.013 0.12);
+  --primary: oklch(0.1826 0.002 286.2);
+  --primary-foreground: oklch(0.2562 0 0);
+  --secondary: oklch(0.849 0.1429 98.2);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(68.259% 0.10569 212.145 / 0.749);
+  --muted: oklch(0.1826 0.002 286.2);
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.205 0 0);
@@ -80,8 +80,8 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --search: oklab(26.99% -0.00512 -0.01893);
-  --sidebar: oklab(18.46% 0.002 -0.02);
+  --search: oklab(28.094% -0.00028 -0.00964);
+  --sidebar: oklch(0.1826 0.002 286.2);
   --sidebar-foreground: oklab(94.61% 0.000 0.00);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -145,5 +145,58 @@
   .editor-wrapper .ProseMirror{
     all: unset;
     @apply bg-background text-foreground
+  }
+
+  ::selection {
+    @apply bg-primary-foreground text-secondary;
+  }
+
+  .ProseMirror:focus {
+    outline: none;
+  }
+
+  /* Sidebar scrollbar */
+  .sidebar::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  .sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Hidden by default */
+  .sidebar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 0;
+  }
+
+  /* Show on hover */
+  .sidebar:hover::-webkit-scrollbar-thumb {
+    background: var(--secondary); /* user theme color */
+  }
+
+  .sidebar:hover::-webkit-scrollbar-thumb:hover {
+    filter: brightness(0.85);
+  }
+
+  /* Firefox */
+  .sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .sidebar:hover {
+    scrollbar-color: var(--secondary) transparent;
+  }
+
+  /* Mobile */
+  @media (pointer: coarse) {
+    .sidebar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .sidebar {
+      scrollbar-width: none;
+    }
   }
 }

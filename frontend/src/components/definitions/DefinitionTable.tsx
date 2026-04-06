@@ -124,21 +124,20 @@ export default function DefinitionTable({
     }, [activeDefinitionExists, activeDefinitionId, activeField, activeOccurrenceIndex]);
 
     return(
-        <div className="w-full overflow-x-auto">
-            <Table className="w-full min-w-[700px]">
+        <div className="w-full overflow-x-auto bg-background">
+            <Table className="w-full min-w-[700px] border-0 border-collapse">
                 <TableCaption className="capitalize font-funnel font-bold">Definitions Table</TableCaption>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-2/12">Term</TableHead>
-                        <TableHead className="w-3/12">Definition</TableHead>
-                        <TableHead className="w-4/12">Example</TableHead>
-                        <TableHead className="w-1/12">Added By</TableHead>
-                        <TableHead className="w-1/12">Updated</TableHead>
-                        <TableHead className="w-1/12 text-center">Actions</TableHead>
+                <TableHeader className="bg-sidebar border-0 [&_tr]:border-0">
+                    <TableRow className="border-0">
+                        <TableHead className="w-2/12 px-5 py-4 text-base font-semibold tracking-wide text-foreground">Term</TableHead>
+                        <TableHead className="w-3/12 px-5 py-4 text-base font-semibold tracking-wide text-foreground">Definition</TableHead>
+                        <TableHead className="w-4/12 px-5 py-4 text-base font-semibold tracking-wide text-foreground">Example</TableHead>
+                        <TableHead className="w-1/12 px-5 py-4 text-base font-semibold tracking-wide text-foreground">Added By</TableHead>
+                        <TableHead className="w-1/12 px-5 py-4 text-center text-base font-semibold tracking-wide text-foreground">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {definitions.map((def) =>{
+                    {definitions.map((def, index) =>{
 
                         // Sort contributors by date
                         const sortedContributors = [...def.contributors].sort(
@@ -155,9 +154,15 @@ export default function DefinitionTable({
                         <TableRow
                             key={def._id}
                             ref={isActiveDefinition ? activeRowRef : null}
-                            className={isActiveDefinition ? "bg-secondary/10" : undefined}
+                            className={
+                                isActiveDefinition
+                                    ? "border-0 bg-secondary/15 transition-colors duration-150"
+                                    : index % 2 === 0
+                                        ? "border-0 bg-background hover:bg-secondary/10 transition-colors duration-150"
+                                        : "border-0 bg-sidebar hover:bg-secondary/10 transition-colors duration-150"
+                            }
                         >
-                            <TableCell className="font-medium break-all whitespace-normal">
+                            <TableCell className="px-5 py-5 align-top font-semibold break-words whitespace-normal text-foreground">
                                 <HighlightedText
                                     text={def.term ?? ""}
                                     query={searchQuery}
@@ -165,7 +170,7 @@ export default function DefinitionTable({
                                     activeOccurrenceIndex={isActiveDefinition ? activeOccurrenceIndex : null}
                                 />
                             </TableCell>
-                            <TableCell className="break-all whitespace-normal">
+                            <TableCell className="px-5 py-5 align-top break-words whitespace-normal text-foreground">
                                 <HighlightedText
                                     text={def.definition ?? ""}
                                     query={searchQuery}
@@ -173,7 +178,7 @@ export default function DefinitionTable({
                                     activeOccurrenceIndex={isActiveDefinition ? activeOccurrenceIndex : null}
                                 />
                             </TableCell>
-                            <TableCell className="break-all whitespace-normal">
+                            <TableCell className="px-5 py-5 align-top break-words whitespace-normal text-foreground">
                                 <HighlightedText
                                     text={def.example ?? ""}
                                     query={searchQuery}
@@ -181,7 +186,7 @@ export default function DefinitionTable({
                                     activeOccurrenceIndex={isActiveDefinition ? activeOccurrenceIndex : null}
                                 />
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="px-5 py-5 align-top">
                                <AvatarGroup className="overflow-visible">
                                     {/* Creator */}
                                     {creator ? (
@@ -216,65 +221,70 @@ export default function DefinitionTable({
                                     )}
                                 </AvatarGroup>
                             </TableCell>
-                            <TableCell></TableCell>
-                            <TableCell className="text-right">
-                                <HoverCard>
-                                    <HoverCardTrigger asChild>
-                                        <Button
-                                            className="hover:text-secondary hover:cursor-pointer mr-1"
-                                            aria-label="Edit definition"
-                                            onClick={() => onEdit(def)}
-                                        >
-                                            <PencilLine />
-                                        </Button>
-                                    </HoverCardTrigger>
-
-                                    <HoverCardContent side="top" className="bg-background">
-                                        <div className="font-instrument text-xs text-center text-foreground ">
-                                            Edit the definition title, description, and example to better reflect the term.
-                                        </div>
-                                    </HoverCardContent>
-                                </HoverCard>
-                                {/* Delete button */}
-                                {onDelete && (
+                            <TableCell className="px-5 py-5 align-top text-right">
+                                <div className="flex items-start justify-end gap-1">
                                     <HoverCard>
-                                    <Dialog>
-                                        <DialogTrigger asChild>
                                         <HoverCardTrigger asChild>
                                             <Button
-                                            className="hover:text-destructive hover:cursor-pointer hover:underline"
-                                            aria-label="Delete section"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground/80 hover:text-secondary hover:bg-secondary/10 hover:cursor-pointer"
+                                                aria-label="Edit definition"
+                                                onClick={() => onEdit(def)}
                                             >
-                                            <Trash2 />
+                                                <PencilLine className="h-4 w-4" />
                                             </Button>
                                         </HoverCardTrigger>
-                                        </DialogTrigger>
 
-                                        <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle>Delete definition</DialogTitle>
-                                            <DialogDescription className="capitalize">
-                                                Are you sure? This action will permanently delete the definition!
-                                            </DialogDescription>
-                                        </DialogHeader>
-
-                                        <Button
-                                            className="bg-secondary text-primary hover:cursor-pointer hover:text-primary hover:bg-destructive"
-                                            onClick={() => onDelete(def._id)}
-                                        >
-                                            Yes, delete this definition
-                                        </Button>
-
-                                        </DialogContent>
-                                    </Dialog>
-
-                                    <HoverCardContent side="top" className="bg-background">
-                                        <div className="font-instrument text-xs text-center text-foreground">
-                                            Deletes this definition. This action cannot be undone.
-                                        </div>
-                                    </HoverCardContent>
+                                        <HoverCardContent side="top" className="bg-background">
+                                            <div className="font-instrument text-xs text-center text-foreground ">
+                                                Edit the definition title, description, and example to better reflect the term.
+                                            </div>
+                                        </HoverCardContent>
                                     </HoverCard>
-                                )}
+                                    {/* Delete button */}
+                                    {onDelete && (
+                                        <HoverCard>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                            <HoverCardTrigger asChild>
+                                                <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10 hover:cursor-pointer"
+                                                aria-label="Delete section"
+                                                >
+                                                <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </HoverCardTrigger>
+                                            </DialogTrigger>
+
+                                            <DialogContent className="border-none">
+                                            <DialogHeader>
+                                                <DialogTitle>Delete definition</DialogTitle>
+                                                <DialogDescription className="capitalize">
+                                                    Are you sure? This action will permanently delete the definition!
+                                                </DialogDescription>
+                                            </DialogHeader>
+
+                                            <Button
+                                                className="bg-secondary text-primary hover:cursor-pointer hover:text-primary hover:bg-destructive"
+                                                onClick={() => onDelete(def._id)}
+                                            >
+                                                Yes, delete this definition
+                                            </Button>
+
+                                            </DialogContent>
+                                        </Dialog>
+
+                                        <HoverCardContent side="top" className="bg-background">
+                                            <div className="font-instrument text-xs text-center text-foreground">
+                                                Deletes this definition. This action cannot be undone.
+                                            </div>
+                                        </HoverCardContent>
+                                        </HoverCard>
+                                    )}
+                                </div>
                             </TableCell>
                         </TableRow>
                     )})}

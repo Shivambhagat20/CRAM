@@ -18,8 +18,8 @@ exports.hashPassword = async (password) => {
 }
 
 exports.getPasswordById = async (id) => {
-    const user = await User.findById(id).select('password_hash').lean();
-    return user.password_hash;
+    const user = await User.findById(id).select('passwordHash').lean();
+    return user.passwordHash;
 }
 
 // verify a given password and hash

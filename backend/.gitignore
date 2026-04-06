@@ -6,3 +6,6 @@ testingsubstitutions.txt
 
 # stryker temp files
 .stryker-tmp
+
+#docker override
+docker-compose.override.yml

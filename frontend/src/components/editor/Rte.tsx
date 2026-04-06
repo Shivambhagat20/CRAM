@@ -41,8 +41,6 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
         title: z.string().min(5,{message: "Title is not long enough"}),
         description: z.string().min(5,{message: "Please add a longer description"}),
         body: z.string().min(10,{message:"Please add some more information"})
-        
-
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -64,7 +62,8 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
     }, [initialValues, form]);
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-         const { title, description, body } = values;
+        const { title, description, body } = values;
+        setServerError(null); // remove old errors
 
         try {
             setLoading(true);
@@ -94,9 +93,10 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
 
         } catch (error) {
             console.error("Submission failed", error);
-            if (error instanceof ApiError && error.status === 401){
+            if (error instanceof ApiError && error.status === 401) {
                 openAuthDialog("login");
-            }else{
+                setServerError(error.message ?? "Only logged-in users may create sections.");
+            } else {
                 setServerError(
                     error instanceof Error ? error.message : "Something went wrong."
                 );
@@ -117,7 +117,11 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
                             <FormItem>
                                 <FormLabel>Title</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Main title" {...field} />
+                                    <Input
+                                        placeholder="Main title"
+                                        {...field}
+                                        className="rounded-none border-border"
+                                        />
                                 </FormControl>
                                 <FormMessage/>
                             </FormItem>
@@ -130,7 +134,11 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
                             <FormItem>
                                 <FormLabel>Description</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="description" {...field} />
+                                    <Input
+                                        placeholder="description"
+                                        {...field}
+                                        className="rounded-none border-border"
+                                        />
                                 </FormControl>
                                 <FormMessage/>
                             </FormItem>
@@ -148,7 +156,7 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
                             </FormItem>
                         )}
                     />
-                <Button type="submit" disabled={loading} className="m-2 hover:cursor-pointer hover:text-secondary"> 
+                <Button type="submit" disabled={loading} className="m-2 bg-secondary hover:cursor-pointer hover:text-secondary"> 
                     {loading ? "Creating section..." : "Submit"}
                 </Button>
 
@@ -159,8 +167,6 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
                 )}
             </form>
         </Form>
-      </div>  
+    </div>  
     );
-
-    
 }

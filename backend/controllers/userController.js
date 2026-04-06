@@ -17,6 +17,8 @@ exports.getUserById = async (req, res) => {
         }
         res.status(200).json(user);
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }
@@ -42,6 +44,8 @@ exports.updateUserById = async (req, res) => {
 
         res.status(200).json(updatedUser);
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }
@@ -57,6 +61,8 @@ exports.changeEmailById = async (req, res) => {
 
         res.status(200).json({ message: 'Verification code sent to new email' });
     } catch (error) {
+        console.error("Error:",error);
+
         if (error.message.includes('not allowed')) {
             return res.status(403).json({ error: error.message });
         }
@@ -81,6 +87,8 @@ exports.confirmEmailChange = async (req, res) => {
 
         res.status(200).json({ message: 'Email change successful' });
     } catch (error) {
+        console.error("Error:",error);
+
         if (error.message.includes('Invalid user')) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -102,6 +110,8 @@ exports.resetPasswordById = async (req, res) => {
 
         res.status(200).json({ message: 'Password changed successfully' });
     } catch (error) {
+        console.error("Error:",error);
+
         if (error.message.includes('incomplete')) {
             res.status(422).json({ error: error.message });
         } 
@@ -122,6 +132,8 @@ exports.deleteUserById = async (req, res) => {
         }
         res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }
@@ -136,6 +148,8 @@ exports.createUser = async (req, res) => {
         res.status(201).json(newUser);
     }
     catch (error) {
+        console.error("Error:",error);
+
         if (error.message.includes('already exists')) {
             res.status(409).json({ error: error.message });
         }
@@ -159,15 +173,16 @@ exports.loginUser = async (req, res) => {
         req.session.user = {
             id: user._id,
             email: user.email,
-            username: user.user_name,
-            profilePic: user.profile_pic,
+            username: user.username,
+            profilePic: user.profilePic,
             role: user.role,
-            is_verified: user.is_verified
+            isVerified: user.isVerified
         }
 
         return res.status(200).json(req.session.user);
     }
     catch (error) {
+        console.error("Error:",error);
         if (error.message.includes('Invalid')) {
             return res.status(403).json({ error: "Invalid email or password" });
         }
@@ -193,6 +208,7 @@ exports.logoutUser = (req, res) => {
     // session exists so try and destroy it
     req.session.destroy((err) => {
         if (err) {
+            console.error("Error:",err);
             return res.status(500).json({ error: "Failed to logout" });
         }
 
@@ -209,6 +225,8 @@ exports.requestVerificationCode = async (req, res) => {
 
         return res.status(200).json({ message: 'Verification code sent to email' });
     } catch (error) {
+        console.error("Error:",error);
+
         if (error.message.includes('not found')) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -228,11 +246,13 @@ exports.verifyEmail = async (req, res) => {
 
         // If the user is currently logged in, update their session
         if (req.session && req.session.user && req.session.user.email === email) {
-            req.session.user.is_verified = true;
+            req.session.user.isVerified = true;
         }
 
         res.status(200).json({ message: "Email verified successfully" });
     } catch (error) {
+        console.error("Error:",error);
+
         if (error.message.includes('Invalid')) {
             return res.status(400).json({ error: error.message });
         }
@@ -262,6 +282,8 @@ exports.forgotPassword = async (req, res) => {
         // Always return 200, even if email doesn't exist, to prevent enumeration
         res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: "Failed to process password reset request" });
     }
 }
@@ -275,6 +297,8 @@ exports.resetPassword = async (req, res) => {
 
         res.status(200).json({ message: "Password reset successfully" });
     } catch (error) {
+        console.error("Error:",error);
+
         if (error.message.includes("Invalid or expired") || error.message.includes("expired") || error.message.includes("required")) {
             return res.status(400).json({ error: error.message });
         }

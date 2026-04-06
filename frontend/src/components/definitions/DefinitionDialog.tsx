@@ -28,7 +28,10 @@ export default function DefinitionDialog({
 }: DefinitionDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange} confirmOnClose>
-      <DialogContent className="sm:max-w-[40vw] max-w-[40vw]">
+      <DialogContent 
+        className="max-w-[80vw] sm:max-w-[80vw] md:max-w-[50vw] lg:max-w-[30vw] border-none"
+        aria-describedby="Add or edit a definition"
+      >
         <DialogHeader>
           <DialogTitle>
             {mode === "create"

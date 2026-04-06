@@ -15,6 +15,8 @@ exports.createSection = async (req, res) => {
         });
         res.status(201).json(newSection);
     } catch (error) {
+        console.error("Error:",error);
+
         if (error.message.includes('already exists')) {
             res.status(409).json({ error: error.message });
         } else if (error.message.includes('incomplete')) {
@@ -32,6 +34,8 @@ exports.getSectionsByCourseCode = async (req, res) => {
         const sections = await sectionService.getSectionsByCourseCode(courseCode);
         res.status(200).json(sections);
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }
@@ -46,6 +50,8 @@ exports.deleteSection = async (req, res) => {
         }
         res.status(200).json({ message: 'Section deleted successfully' });
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }
@@ -68,6 +74,8 @@ exports.updateSection = async (req, res) => {
         });
         res.status(200).json(updatedSection);
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }

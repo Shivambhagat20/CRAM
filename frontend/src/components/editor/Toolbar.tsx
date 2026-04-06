@@ -24,11 +24,21 @@ export function ToolBar({editor}: Props){
     if(!editor){
         return null
     }
+
+    // Use the dynamic theme color for RTE toolbar.
+    const toggleClassName = `
+        text-foreground
+        hover:bg-secondary hover:text-background
+        data-[state=on]:bg-secondary/15
+        data-[state=on]:text-secondary
+        data-[state=on]:border-secondary
+    `
     
     return (
-        <div className="border border-input bg-transparent rounded-md">
+        <div className="border-b border-border bg-transparent rounded-none">
             <Toggle
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("heading", {level:1})}
                 onPressedChange={() =>
                     editor.chain().focus().toggleHeading({level:1}).run()
@@ -38,6 +48,7 @@ export function ToolBar({editor}: Props){
             </Toggle>
             <Toggle 
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("heading", {level:2})}
                 onPressedChange={() =>
                     editor.chain().focus().toggleHeading({level:2}).run()
@@ -47,6 +58,7 @@ export function ToolBar({editor}: Props){
             </Toggle>
             <Toggle
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("heading", {level:3})}
                 onPressedChange={() =>
                     editor.chain().focus().toggleHeading({level:3}).run()
@@ -57,6 +69,7 @@ export function ToolBar({editor}: Props){
 
             <Toggle 
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("bold")}
                 onPressedChange={() => editor.chain().focus().toggleBold().run()}
             >
@@ -65,6 +78,7 @@ export function ToolBar({editor}: Props){
 
             <Toggle 
                 size ="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("italic")}
                 onPressedChange={() => editor.chain().focus().toggleItalic().run()}
             >
@@ -73,6 +87,7 @@ export function ToolBar({editor}: Props){
 
             <Toggle
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("bulletList")}
                 onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
             >
@@ -80,6 +95,7 @@ export function ToolBar({editor}: Props){
             </Toggle>
             <Toggle 
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("orderedList")}
                 onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
             >
@@ -87,6 +103,7 @@ export function ToolBar({editor}: Props){
             </Toggle>
            <Toggle
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("strike")}
                 onPressedChange={() =>
                     editor.chain().focus().toggleStrike().run()
@@ -96,6 +113,7 @@ export function ToolBar({editor}: Props){
             </Toggle>
             <Toggle
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("code")}
                 onPressedChange={() =>
                     editor.chain().focus().toggleCode().run()
@@ -105,6 +123,7 @@ export function ToolBar({editor}: Props){
             </Toggle>
             <Toggle
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("codeBlock")}
                 onPressedChange={() =>
                     editor.chain().focus().toggleCodeBlock().run()
@@ -114,6 +133,7 @@ export function ToolBar({editor}: Props){
             </Toggle>
             <Toggle
                 size="sm"
+                className={toggleClassName}
                 pressed={editor.isActive("blockquote")}
                 onPressedChange={() =>
                     editor.chain().focus().toggleBlockquote().run()
@@ -123,6 +143,7 @@ export function ToolBar({editor}: Props){
             </Toggle>
             <Toggle
                 size="sm"
+                className={toggleClassName}
                 pressed={false}
                 onPressedChange={() =>
                     editor.chain().focus().setHorizontalRule().run()

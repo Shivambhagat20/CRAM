@@ -25,9 +25,9 @@ exports.setPendingEmail = async (id, email, code) => {
     return await User.findByIdAndUpdate(
         id,
         { 
-            pending_email: email, 
-            verification_code: code,
-            is_verified: false 
+            pendingEmail: email, 
+            verificationCode: code,
+            isVerified: false 
         },
         { new: true }
     ).lean();
@@ -50,7 +50,7 @@ exports.createUser = async (userData) => {
 exports.setVerificationCode = async (email, code) => {
     return await User.findOneAndUpdate(
         { email: email },
-        { verification_code: code },
+        { verificationCode: code },
         { new: true }
     ).lean();
 }
@@ -58,7 +58,7 @@ exports.setVerificationCode = async (email, code) => {
 exports.verifyUser = async (email) => {
     return await User.findOneAndUpdate(
         { email: email },
-        { is_verified: true, $unset: { verification_code: 1 } },
+        { isVerified: true, $unset: { verificationCode: 1 } },
         { new: true }
     ).lean();
 }
@@ -72,12 +72,12 @@ exports.confirmEmailChange = async (id) => {
         id,
         {
             $set: { 
-                email: user.pending_email,
-                is_verified: true 
+                email: user.pendingEmail,
+                isVerified: true 
             },
             $unset: { 
-                pending_email: 1, 
-                verification_code: 1 
+                pendingEmail: 1, 
+                verificationCode: 1 
             }
         },
         { new: true }
@@ -89,19 +89,19 @@ exports.confirmEmailChange = async (id) => {
 exports.setResetToken = async (email, token, expiry) => {
     return await User.findOneAndUpdate(
         { email: email },
-        { reset_token: token, reset_token_expiry: expiry },
+        { resetToken: token, resetTokenExpiry: expiry },
         { new: true }
     ).lean();
 }
 
 exports.findUserByResetToken = async (token) => {
-    return await User.findOne({ reset_token: token }).lean();
+    return await User.findOne({ resetToken: token }).lean();
 }
 
 exports.clearResetToken = async (id) => {
     return await User.findByIdAndUpdate(
         id,
-        { $unset: { reset_token: 1, reset_token_expiry: 1 } },
+        { $unset: { resetToken: 1, resetTokenExpiry: 1 } },
         { new: true }
     ).lean();
 }
@@ -112,7 +112,7 @@ exports.clearResetToken = async (id) => {
 exports.addContribution = async (userId, { refId, contributionType, courseCode }) => {
     // first try to update the date if contribution exists
     const existing = await User.findOneAndUpdate(
-        {_id: userId, "contributions.ref_id": refId },
+        {_id: userId, "contributions.refId": refId },
         {
             $set: {
                 "contributions.$.date": new Date()
@@ -128,9 +128,9 @@ exports.addContribution = async (userId, { refId, contributionType, courseCode }
             {
                 $push: {
                     contributions: {
-                        ref_id: refId,
+                        refId: refId,
                         type: contributionType,
-                        course_code: courseCode,
+                        courseCode: courseCode,
                         date: new Date()
                     }
                 }

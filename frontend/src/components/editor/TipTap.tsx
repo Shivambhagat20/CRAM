@@ -36,7 +36,7 @@ export default function TipTap({
         content: description,
         editorProps: {
             attributes: {
-                class: "rounded-md min-h-[150px] bg-background w-full max-h-[500px] overflow-y-auto \
+                class: "rounded-none min-h-[150px] bg-background w-full max-h-[500px] overflow-y-auto \
                     [&_ul]:list-disc [&_ul]:ml-6 \
                     [&_ol]:list-decimal [&_ol]:ml-6 \
                     [&_li]:my-1 \
@@ -45,7 +45,6 @@ export default function TipTap({
         },
         onUpdate({editor}){
             onChange(editor.getHTML())
-            console.log(editor.getHTML())
         },
     });
     useEffect(() => {
@@ -56,7 +55,7 @@ export default function TipTap({
     }, [description, editor]);
 
     return (
-        <div className="flex flex-col justify-stretch min-h-[250px] border-1 p-2 border-foreground rounded-lg">
+        <div className="flex flex-col justify-stretch min-h-[250px] border p-2 border-border rounded-none">
             <ToolBar editor={editor} />
             <EditorContent editor={editor} />
         </div>

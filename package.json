@@ -9,6 +9,7 @@
         "test": "concurrently \"npm run test --prefix backend\" \"npm run test --prefix frontend\"",
         "test:watch": "concurrently \"npm run test --prefix backend -- --watch\" \"npm run test --prefix frontend -- --watch\"",
         "test:load": "concurrently \"npx cross-env PORT=5001 NODE_ENV=loadtest SESSION_SECRET=testing123 node backend/server.js\" \"npx artillery run backend/tests/load/test.yml\""
+        
 
     },
     "devDependencies": {

@@ -1,7 +1,7 @@
 config:
   target: "http://127.0.0.1:5001" 
   phases:
-    - duration: 60      # Run for X seconds
+    - duration: 30      # Run for X seconds
       arrivalRate: 10   # Add X new users every second
       name: Warm up
 scenarios:
@@ -32,6 +32,7 @@ scenarios:
       - log: "userID: {{ userId }}, vCode: -{{ vCode }}-" 
     
       # Account Creation: Verify the User
+      - think: 1
       - put:
           url: "/api/v1/user/verify-email"
           json:
@@ -39,6 +40,8 @@ scenarios:
             code: "{{ vCode }}"
       
       - log: "email: {{ userEmail }}" 
+      - think: 1
+
       - post:
           url: "/api/v1/user/login"
           json:
@@ -47,9 +50,13 @@ scenarios:
           
       - log: "LOGIN"
       #Course provisioning
+      - think: 1
+
       - get:
           url: "/api/v1/courses"
       - log: "GET COURSES"
+      - think: 1
+
       - post:
           url: "/api/v1/courses/create"
           json:
@@ -69,6 +76,8 @@ scenarios:
       - log: "courseID: {{ courseID }}, courseCode: {{cCode}}" 
       
       #Section Management
+      - think: 1
+
       - post: 
           url: "/api/v1/sections/create"
           json:
@@ -81,16 +90,21 @@ scenarios:
               as: "sectionID"
 
       - log: "sectionID: {{ sectionID }}" 
+      - think: 1
 
       - put:
           url: "/api/v1/sections/update/{{sectionID}}"
           json:
             description: "tomatoes"
+      - think: 1
+
       - delete:
           url: "/api/v1/sections/delete/{{sectionID}}"
       - log: "DELETING SECTION" 
 
       #Definitions
+      - think: 1
+
       - post: 
           url: "/api/v1/definitions/create"
           json:
@@ -103,22 +117,31 @@ scenarios:
             as: "definitionID"
 
       - log: "definition: {{ definitionID }}" 
+      - think: 1
 
       - put:
           url: "/api/v1/definitions/update/{{definitionID}}"
           json:
             definition: "tomatoes"
+      - think: 1
+
       - delete:
           url: "/api/v1/definitions/delete/{{definitionID}}"
       - log: "DELETING DEFINITION"
       #Profile Management
+      - think: 1
+
       - put:
           url: "/api/v1/user/update/{{userId}}"
           json:
             username: "Updated load test name"
+      - think: 1
+
       - delete:
           url: "/api/v1/user/delete/{{userId}}"
       - log: "DELETING USER"
+      - think: 1
+
       - delete:
           url: "/api/v1/courses/delete/{{courseID}}"
       - log: "DELETING COURSE"

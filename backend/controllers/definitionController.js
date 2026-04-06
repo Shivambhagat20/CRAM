@@ -9,6 +9,8 @@ exports.getDefinitionsByCourseCode = async (req, res) => {
         const definitions = await definitionService.getDefinitionsByCourseCode(courseCode);
         res.status(200).json(definitions);
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }
@@ -27,6 +29,8 @@ exports.createDefinition = async (req, res) => {
         res.status(201).json(newDefinition);
     }
     catch (error) {
+        console.error("Error:",error);
+
         if(error.message.includes('incomplete')) {
             res.status(422).json({ error: error.message });
         }
@@ -42,6 +46,8 @@ exports.deleteDefinition = async (req, res) => {
         res.status(204).send();
     }
     catch (error) {
+        console.error("Error:",error);
+
         if(error.message.includes('not found')) {
             res.status(404).json({ error: error.message });
         }
@@ -66,6 +72,8 @@ exports.updateDefinition = async (req, res) => {
         });
         res.status(200).json(updatedDefinition);
     } catch (error) {   
+        console.error("Error:",error);
+
         if(error.message.includes('not found')) {
             res.status(404).json({ error: error.message });
         }

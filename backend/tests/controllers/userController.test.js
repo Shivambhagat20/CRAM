@@ -7,7 +7,7 @@ test('UserController - createUser', async (t) => {
     // Mock user data
     const userData1 = {
         id: 'testuser123',
-        userName: 'testuser',
+        username: 'testuser',
         passwordHash: 'hashedpassword',
         email: 'onion@example.com',
         role: null,
@@ -17,7 +17,7 @@ test('UserController - createUser', async (t) => {
     };
     const userData2 = {
         id: 'testuser456',
-        userName: 'testuser2',
+        username: 'testuser2',
         passwordHash: 'hashedpassword2',
         email: 'onion@myumanitoba.ca',
         role: null,
@@ -27,7 +27,7 @@ test('UserController - createUser', async (t) => {
     };
     const userData3 = {
         id: 'testuser789',
-        userName: 'testuser3',
+        username: 'testuser3',
         passwordHash: 'hashedpassword3',
         email: 'onion@umanitoba.ca',
         role: null,
@@ -340,7 +340,7 @@ test('UserController - loginUser - success', async (t) => {
     const mockUser = {
         _id: '123',
         email: 'test@umanitoba.ca',
-        user_name: 'testuser',
+        username: 'testuser',
         role: 'student'
     };
 
@@ -379,7 +379,7 @@ test('UserController - loginUser - success', async (t) => {
         username: 'testuser',
         profilePic: undefined,
         role: 'student',
-        is_verified: undefined
+        isVerified: undefined
     });
 
     // Response matches session

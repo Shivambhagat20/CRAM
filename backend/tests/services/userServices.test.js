@@ -34,12 +34,12 @@ test('UserService - createUser', async (t) => {
 
     const createdUser = await userService.createUser(userData);
 
-    assert.strictEqual(createdUser.user_name, 'testuser2');
+    assert.strictEqual(createdUser.username, 'testuser2');
     assert.strictEqual(createdUser.email, 'test@myumanitoba.ca');
-    assert.strictEqual(createdUser.password_hash, 'mocked_hash');
+    assert.strictEqual(createdUser.passwordHash, 'mocked_hash');
     assert.strictEqual(createdUser.role, 'student');
-    assert.strictEqual(createdUser.is_verified, false);
-    assert.match(createdUser.verification_code, /^\d{6}$/);
+    assert.strictEqual(createdUser.isVerified, false);
+    assert.match(createdUser.verificationCode, /^\d{6}$/);
 });
 
 test('UserService - createUser with invalid email domain', async (t) => {
@@ -123,12 +123,12 @@ test('UserService - createUser with professor email domain', async (t) => {
 
     const createdUser = await userService.createUser(userData);
 
-    assert.strictEqual(createdUser.user_name, 'testuser3');
+    assert.strictEqual(createdUser.username, 'testuser3');
     assert.strictEqual(createdUser.email, 'proftest@umanitoba.ca');
-    assert.strictEqual(createdUser.password_hash, 'mocked_hash');
+    assert.strictEqual(createdUser.passwordHash, 'mocked_hash');
     assert.strictEqual(createdUser.role, 'professor');
-    assert.strictEqual(createdUser.is_verified, false);
-    assert.match(createdUser.verification_code, /^\d{6}$/);
+    assert.strictEqual(createdUser.isVerified, false);
+    assert.match(createdUser.verificationCode, /^\d{6}$/);
 });
 
 test('UserService - addContribution new entry', async (t) => {

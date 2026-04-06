@@ -37,8 +37,8 @@ describe('Section Integration Tests', () => {
 
         // verify the user directly in the database before login
         await mongoose.model('User').findByIdAndUpdate(createdUserID, {
-            is_verified: true,
-            verification_code: null
+            isVerified: true,
+            verificationCode: null
         });
 
         const loginRes = await request(app).post('/api/v1/user/login').send({ email: uniqueEmail, password: 'weenuk88' });
@@ -50,8 +50,8 @@ describe('Section Integration Tests', () => {
 
     // 2. Close DB connection AFTER all tests finish to let Node exit
     after(async () => {
-        await request(app).post('/api/v1/user/logout').set('Cookie', authCookie);
-        await request(app).delete(`/api/v1/user/delete/${createdUserID}`);
+        //await request(app).post('/api/v1/user/logout').set('Cookie', authCookie); user needs to be logged in to be deleted
+        await request(app).delete(`/api/v1/user/delete/${createdUserID}`).set('Cookie', authCookie);
         await disconnect();
         if (sessionStore) {
             await sessionStore.close(); // Closes the session connection

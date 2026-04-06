@@ -115,6 +115,9 @@ export default function Home() {
   const debouncedQuery = useDebouncedValue(query, 0);
   const deferredQuery = useDeferredValue(debouncedQuery);
 
+  // Hotkey listener
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
   type ListHandle = {
     readonly element: HTMLDivElement | null;
     scrollToRow: (config: {
@@ -219,6 +222,41 @@ export default function Home() {
     return allCourses.filter((c) => c._search.includes(q));
   }, [allCourses, deferredQuery]);
 
+  // Search hotkeys
+  useEffect(() => {
+    const handleFindShortcut = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+
+      // Ctrl+F or Cmd+F
+      if ((e.ctrlKey || e.metaKey) && key === "f") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }
+
+      // "/" shortcut (optional but matches Course page)
+      if (key === "/") {
+        const target = e.target as HTMLElement;
+
+        const isTyping =
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable;
+
+        if (!isTyping) {
+          e.preventDefault();
+          searchInputRef.current?.focus();
+        }
+      }
+    };
+
+    globalThis.addEventListener("keydown", handleFindShortcut);
+
+    return () => {
+      globalThis.removeEventListener("keydown", handleFindShortcut);
+    };
+  }, []);
+
   // Reset cache when results change (prevents stale heights causing gaps).
   useEffect(() => {
     heightMapRef.current = {};
@@ -293,7 +331,7 @@ export default function Home() {
     return (
       <div style={style} className="w-full">
         <MeasuredRow id={course.id} onMeasure={(id, h) => onMeasure(id, index, h)}>
-          <Card className="bg-card/95 border border-border/80 shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all duration-200 rounded-2xl">
+          <Card className="bg-search border-none shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all duration-200 rounded-2xl">
           <CardHeader className="pb-2">
             <div>
               <Link to={`/course/${course.id}`}>
@@ -365,8 +403,9 @@ export default function Home() {
           onSubmit={(e: React.FormEvent<HTMLFormElement>) => e.preventDefault()}
           className="w-full sm:w-4/5 md:w-3/4 lg:w-2/3 mt-4 mx-auto"
         >
-          <InputGroup className="h-11 sm:h-12 rounded-xl shadow-md border border-border bg-search">
+          <InputGroup className="h-11 sm:h-12 rounded-xl shadow-md border-none bg-search">
             <InputGroupInput
+              ref={searchInputRef}
               type="search"
               placeholder="Search by course name or code..."
               value={query}

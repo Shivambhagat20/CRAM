@@ -18,11 +18,14 @@ export default function AuthDialog({ open, mode, setOpen, setMode }: AuthDialogP
             onOpenChange={setOpen}
             confirmOnClose
         >
-            <DialogContent className="bg-primary">
+            <DialogContent className="bg-primary border-none">
                 {mode === "login" ? (
                     <>
                         <DialogHeader>
-                            <DialogTitle className="text-secondary text-2xl">
+                            <DialogTitle 
+                                className="text-secondary text-2xl"
+                                aria-describedby="login to your account"
+                            >
                                 Login
                                 <DialogDescription className="font-thin font-instrument text-foreground text-xs mt-2">
                                     Enter your username and password to log in.

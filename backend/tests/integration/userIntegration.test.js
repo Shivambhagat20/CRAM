@@ -45,7 +45,7 @@ describe('User Integration Tests', () => {
         console.log('======USER ID FOR TEST USER ============ ' + createdUserID);
 
         assert.strictEqual(response.status, 201);
-        assert.strictEqual(response.body.user_name, "test guy");
+        assert.strictEqual(response.body.username, "test guy");
     });
     test('PUT /api/v1/user/update/:id - Update a User', async () => {
         const loginRes = await request(app)
@@ -60,12 +60,12 @@ describe('User Integration Tests', () => {
         const response = await request(app)
             .put(`/api/v1/user/update/${createdUserID}`)
             .set('Cookie', authCookie)
-            .send({ user_name: "Updated User name" });
+            .send({ username: "Updated User name" });
 
         await request(app).post('/api/v1/user/logout').set('Cookie', authCookie);
 
         assert.strictEqual(response.status, 200);
-        assert.strictEqual(response.body.user_name, "Updated User name");
+        assert.strictEqual(response.body.username, "Updated User name");
     });
 
     test('PUT /api/v1/user/verify-email - Verify a user', async () => {
@@ -74,7 +74,7 @@ describe('User Integration Tests', () => {
 
         const response = await request(app)
             .put('/api/v1/user/verify-email')
-            .send({ email: uniqueEmail, code: user.verification_code });
+            .send({ email: uniqueEmail, code: user.verificationCode });
 
         assert.strictEqual(response.status, 200);
         assert.strictEqual(response.body.message, "Email verified successfully");
@@ -95,7 +95,7 @@ describe('User Integration Tests', () => {
 
         const response = await request(app)
             .post('/api/v1/user/reset-password')
-            .send({ token: user.reset_token, newPassword: 'brandNewPassword456' });
+            .send({ token: user.resetToken, newPassword: 'brandNewPassword456' });
 
         assert.strictEqual(response.status, 200);
         assert.strictEqual(response.body.message, "Password reset successfully");

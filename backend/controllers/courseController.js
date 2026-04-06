@@ -6,6 +6,8 @@ exports.getAllCourses = async (req, res) => {
         const courses = await courseService.getAllCourses();
         res.status(200).json(courses);
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: 'Database Error' });
     }
 }
@@ -20,6 +22,8 @@ exports.findCourseById = async (req, res) => {
         }
         res.status(200).json(course);
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }
@@ -32,6 +36,8 @@ exports.createCourse = async (req, res) => {
         const newCourse = await courseService.createCourse(courseData);
         res.status(201).json(newCourse);
     }   catch (error) { 
+        console.error("Error:",error);
+
         if(error.message.includes('already exists')) {
             res.status(409).json({ error: error.message });
         }
@@ -53,6 +59,8 @@ exports.updateCourse = async (req, res) => {
         }
         res.json(updatedCourse);
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }
@@ -66,6 +74,8 @@ exports.deleteCourse = async (req, res) => {
         }
         res.json({ message: 'Course deleted successfully' });
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }
@@ -77,6 +87,8 @@ exports.getSampleCourses = async (req, res) => {
         const sampleCourses = await courseService.getSampleCourses();
         res.json(sampleCourses);
     } catch (error) {
+        console.error("Error:",error);
+
         res.status(500).json({ error: error.message });
     }
 }

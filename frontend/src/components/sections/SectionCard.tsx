@@ -1,3 +1,9 @@
+import React, { 
+    Fragment,
+    useEffect, 
+    useMemo, 
+    useRef 
+} from "react";
 import { 
     ChevronDownIcon, 
     PencilLine, 
@@ -32,23 +38,20 @@ import {
     CollapsibleTrigger 
 } from "../ui/collapsible";
 import { 
-    Separator 
-} from "../ui/separator";
-import { 
     Avatar,
     AvatarFallback,
     AvatarGroup,
     AvatarGroupCount,
     AvatarImage, 
 } from "../ui/avatar";
-import { useEffect, useMemo, useRef } from "react";
 
-import type { Section } from "@/api/sectionsApi";
+import type { Definition, Section } from "@/api/sectionsApi";
 import { AVATAR_MAP } from "@/constants/avatars";
 import { Link } from "react-router-dom";
 
 type SectionCardProps = {
   section: Section;
+  definitions: Definition[];
   onEdit: (section: Section) => void;
   onDelete?: (section: Section) => void;
   open: boolean;
@@ -59,10 +62,28 @@ type SectionCardProps = {
   activeOccurrenceIndex?: number | null;
 };
 
+type TextPiece = {
+    text: string;
+    isSearchMatch: boolean;
+};
+
+type TextSegment =
+  | {
+      kind: "text";
+      pieces: TextPiece[];
+    }
+  | {
+      kind: "definition";
+      pieces: TextPiece[];
+      definition: Definition;
+    };
+
+// Escape special regex characters.
 function escapeRegExp(value: string) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// Highlights matches in simple text (sections titles and descriptions).
 function highlightText(text: string, query: string) {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) return text;
@@ -86,64 +107,223 @@ function highlightText(text: string, query: string) {
     );
 }
 
-function highlightHtmlContent(html: string, query: string) {
+// Splits text into pieces based on search matches.
+function splitTextIntoSearchPieces(text: string, query: string): TextPiece[] {
     const trimmedQuery = query.trim();
-    if (!trimmedQuery) return html;
+    if (!trimmedQuery) {
+        return [{ text, isSearchMatch: false }];
+    }
+
+    const safeQuery = escapeRegExp(trimmedQuery);
+    const regex = new RegExp(`(${safeQuery})`, "gi"); // Global and Case-insensitive.
+    const parts = text.split(regex);
+
+    return parts
+        .filter((part) => part.length > 0)
+        .map((part) => ({
+            text: part,
+            isSearchMatch: part.toLowerCase() === trimmedQuery.toLowerCase(),
+        }));
+}
+
+// Converts pieces into React elements.
+// Search matches become <mark>.
+function renderSearchPieces(pieces: TextPiece[], keyPrefix: string) {
+    return pieces.map((piece, index) =>
+        piece.isSearchMatch ? (
+            <mark
+                key={`${keyPrefix}-search-${index}`}
+                data-search-match="true"
+                className="rounded px-1 bg-yellow-200 text-black"
+            >
+                {piece.text}
+            </mark>
+        ) : (
+            <Fragment key={`${keyPrefix}-text-${index}`}>{piece.text}</Fragment>
+        )
+    );
+}
+
+// Breaks a string into segments, either normal text or definition matches.
+// Still embeds search highlighting in both.
+function buildTextSegments(text: string, query: string, definitions: Definition[]): TextSegment[] {
+    if (!text) return [];
+
+    const lowerText = text.toLowerCase();
+
+    // Sort definitions by length so longer matches win.
+    const sortedDefinitions = [...definitions]
+        .filter((definition) => (definition.term ?? "").trim().length > 0)
+        .sort((a, b) => (b.term?.length ?? 0) - (a.term?.length ?? 0));
+
+    const segments: TextSegment[] = [];
+    let cursor = 0;
+
+    while (cursor < text.length) {
+        let matchedDefinition: Definition | null = null;
+        let matchedDefinitionLength = 0;
+
+        // Check if a definition starts at this position.
+        for (const definition of sortedDefinitions) {
+            const term = (definition.term ?? "").trim();
+            if (!term) continue;
+
+            const lowerTerm = term.toLowerCase();
+
+            if (lowerText.startsWith(lowerTerm, cursor)) {
+                matchedDefinition = definition;
+                matchedDefinitionLength = term.length;
+                break;
+            }
+        }
+
+        // If a definition match is found then wrap it.
+        if (matchedDefinition && matchedDefinitionLength > 0) {
+            const matchedText = text.slice(cursor, cursor + matchedDefinitionLength);
+
+            segments.push({
+                kind: "definition",
+                pieces: splitTextIntoSearchPieces(matchedText, query),
+                definition: matchedDefinition,
+            });
+
+            cursor += matchedDefinitionLength;
+            continue;
+        }
+
+        // Otherwise just have it be plain text until the next definition match.
+        let nextCursor = cursor + 1;
+
+        while (nextCursor < text.length) {
+            let startsDefinition = false;
+
+            for (const definition of sortedDefinitions) {
+                const term = (definition.term ?? "").trim();
+                if (!term) continue;
+
+                if (lowerText.startsWith(term.toLowerCase(), nextCursor)) {
+                    startsDefinition = true;
+                    break;
+                }
+            }
+
+            if (startsDefinition) {
+                break;
+            }
+
+            nextCursor += 1;
+        }
+
+        const plainText = text.slice(cursor, nextCursor);
+
+        segments.push({
+            kind: "text",
+            pieces: splitTextIntoSearchPieces(plainText, query),
+        });
+
+        cursor = nextCursor;
+    }
+
+    return segments;
+}
+
+// Converts segments into React elements.
+// Wraps definition segments in HoverCard.
+// Still renders text segments normally with search highlighting.
+function renderTextSegments(text: string, query: string, definitions: Definition[], keyPrefix: string) {
+    const segments = buildTextSegments(text, query, definitions);
+
+    return segments.map((segment, index) => {
+        if (segment.kind === "definition") {
+            return (
+                <HoverCard key={`${keyPrefix}-definition-${index}`}>
+                    <HoverCardTrigger asChild>
+                        <span className="cursor-help underline decoration-dotted underline-offset-4">
+                            {renderSearchPieces(segment.pieces, `${keyPrefix}-definition-pieces-${index}`)}
+                        </span>
+                    </HoverCardTrigger>
+                    <HoverCardContent side="top" className="bg-background">
+                        <div className="space-y-1">
+                            <div className="font-funnel font-bold text-sm text-secondary">
+                                {segment.definition.term}
+                            </div>
+                            <div className="font-instrument text-sm text-foreground">
+                                {segment.definition.definition}
+                            </div>
+                            {segment.definition.example?.trim() ? (
+                                <div className="font-instrument text-xs italic text-muted-foreground">
+                                    {segment.definition.example}
+                                </div>
+                            ) : null}
+                        </div>
+                    </HoverCardContent>
+                </HoverCard>
+            );
+        }
+
+        return (
+            <Fragment key={`${keyPrefix}-text-segment-${index}`}>
+                {renderSearchPieces(segment.pieces, `${keyPrefix}-text-pieces-${index}`)}
+            </Fragment>
+        );
+    });
+}
+
+// Parses HTML and recursively converts it into React elements.
+// Still applying both search highlighting and definition hover wrapping.
+function renderHtmlContentWithHighlightsAndDefinitions(
+    html: string,
+    query: string,
+    definitions: Definition[]
+) {
+    if (!html) return null;
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
-    const safeQuery = escapeRegExp(trimmedQuery);
-    const regex = new RegExp(safeQuery, "gi");
 
-    const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, {
-        acceptNode(node) {
-            if (!node.textContent?.trim()) return NodeFilter.FILTER_REJECT;
+    let keyCounter = 0;
 
-            const parentElement = node.parentElement;
-            if (!parentElement) return NodeFilter.FILTER_REJECT;
-
-            if (["SCRIPT", "STYLE"].includes(parentElement.tagName)) {
-                return NodeFilter.FILTER_REJECT;
-            }
-
-            return NodeFilter.FILTER_ACCEPT;
-        },
-    });
-
-    const textNodes: Text[] = [];
-    let currentNode = walker.nextNode();
-
-    while (currentNode) {
-        textNodes.push(currentNode as Text);
-        currentNode = walker.nextNode();
-    }
-
-    textNodes.forEach((textNode) => {
-        const originalText = textNode.textContent || "";
-
-        if (!regex.test(originalText)) {
-            regex.lastIndex = 0;
-            return;
+    const renderNode = (node: Node): React.ReactNode => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent || "";
+            return (
+                <Fragment key={`text-${keyCounter++}`}>
+                    {renderTextSegments(text, query, definitions, `segment-${keyCounter}`)}
+                </Fragment>
+            );
         }
 
-        regex.lastIndex = 0;
+        if (node.nodeType !== Node.ELEMENT_NODE) {
+            return null;
+        }
 
-        const wrapper = doc.createElement("span");
-        wrapper.innerHTML = originalText.replace(
-            regex,
-            (match) =>
-                `<mark data-search-match="true" class="rounded px-1 bg-yellow-200 text-black">${match}</mark>`
+        const element = node as HTMLElement;
+        const tagName = element.tagName.toLowerCase();
+
+        if (["script", "style"].includes(tagName)) {
+            return null;
+        }
+
+        const props: Record<string, unknown> = {
+            key: `element-${keyCounter++}`,
+        };
+
+        Array.from(element.attributes).forEach((attribute) => {
+            if (attribute.name === "class") {
+                props.className = attribute.value;
+            } else {
+                props[attribute.name] = attribute.value;
+            }
+        });
+
+        const children = Array.from(element.childNodes).map((childNode) =>
+            renderNode(childNode)
         );
 
-        const fragment = doc.createDocumentFragment();
-        while (wrapper.firstChild) {
-            fragment.appendChild(wrapper.firstChild);
-        }
+        return React.createElement(tagName, props, ...children);
+    };
 
-        textNode.parentNode?.replaceChild(fragment, textNode);
-    });
-
-    return doc.body.innerHTML;
+    return Array.from(doc.body.childNodes).map((childNode) => renderNode(childNode));
 }
 
 function clearActiveMatch() {
@@ -166,7 +346,7 @@ function scrollToMatchWithOffset(element: HTMLElement, offset = 104) {
     });
 }
 
-export default function SectionCard({ section, onEdit, onDelete, open, onOpenChange, searchQuery = "", isActiveSearchResult = false, activeField = null, activeOccurrenceIndex = null,}: SectionCardProps) {
+export default function SectionCard({ section, definitions, onEdit, onDelete, open, onOpenChange, searchQuery = "", isActiveSearchResult = false, activeField = null, activeOccurrenceIndex = null,}: SectionCardProps) {
 
     // Contributor constants
     // Stores only unique users
@@ -193,9 +373,13 @@ export default function SectionCard({ section, onEdit, onDelete, open, onOpenCha
         return highlightText(section.description ?? "", searchQuery);
     }, [section.description, searchQuery]);
 
-    const highlightedBodyHtml = useMemo(() => {
-        return highlightHtmlContent(section.body ?? "", searchQuery);
-    }, [section.body, searchQuery]);
+    const highlightedBodyContent = useMemo(() => {
+        return renderHtmlContentWithHighlightsAndDefinitions(
+            section.body ?? "",
+            searchQuery,
+            definitions
+        );
+    }, [section.body, searchQuery, definitions]);
 
         useEffect(() => {
             if (!open) return;
@@ -231,7 +415,7 @@ export default function SectionCard({ section, onEdit, onDelete, open, onOpenCha
                     scrollToMatchWithOffset(target, 104);
                 }
             });
-        }, [searchQuery, isActiveSearchResult, activeField, activeOccurrenceIndex, open, highlightedBodyHtml]);
+        }, [searchQuery, isActiveSearchResult, activeField, activeOccurrenceIndex, open, highlightedBodyContent]);
 
         useEffect(() => {
             if (searchQuery.trim()) return;
@@ -241,7 +425,7 @@ export default function SectionCard({ section, onEdit, onDelete, open, onOpenCha
     return(
 
         <Card
-            className={`bg-primary m-0 border-none w-full ${
+            className={`bg-background m-0 border-none w-full shadow-none ${
                 isActiveSearchResult ? "ring-2 ring-secondary" : ""
             }`}
         >
@@ -250,27 +434,33 @@ export default function SectionCard({ section, onEdit, onDelete, open, onOpenCha
 
                 <CardTitle
                     ref={titleRef}
-                    className="text-left font-funnel font-bold text-xl text-secondary sm:text-2xl"
+                    className="text-left font-instrument font-bold text-2xl text-secondary sm:text-3xl italic"
                 >
-                    {highlightedTitle}
+                    <span className="inline-block bg-primary-foreground px-2 py-1 ">
+                        {highlightedTitle}
+                    </span>
                 </CardTitle>
 
                 <CardDescription
                     ref={descriptionRef}
-                    className="text-left font-instrument font-thin text-xs text-foreground italic sm:text-sm"
+                    className="text-left font-funnel font-thin text-md text-foreground sm:text-lg"
                 >
-                    {highlightedDescription}
+                    <span className="inline-block bg-primary-foreground px-2">
+                        {highlightedDescription}
+                    </span>
                 </CardDescription>
             
                 <CardAction >
                     <HoverCard>
                         <HoverCardTrigger asChild>
                             <Button
-                                className=" hover:text-secondary hover:cursor-pointer"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground/80 hover:text-secondary hover:bg-secondary/10 hover:cursor-pointer"
                                 aria-label="Edit section"
                                 onClick={() => onEdit(section)}
-                            >
-                                <PencilLine />
+                                >
+                                <PencilLine className="h-4 w-4" />
                             </Button>
                         </HoverCardTrigger>
 
@@ -289,15 +479,17 @@ export default function SectionCard({ section, onEdit, onDelete, open, onOpenCha
                             <DialogTrigger asChild>
                             <HoverCardTrigger asChild>
                                 <Button
-                                className="hover:text-destructive hover:cursor-pointer hover:underline"
-                                aria-label="Delete section"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground/80 hover:text-destructive hover:bg-destructive/10 hover:cursor-pointer"
+                                    aria-label="Delete section"
                                 >
-                                <Trash2 />
+                                    <Trash2 className="h-4 w-4" />
                                 </Button>
                             </HoverCardTrigger>
                             </DialogTrigger>
 
-                            <DialogContent>
+                            <DialogContent className="border-none">
                             <DialogHeader>
                                 <DialogTitle>Delete Section</DialogTitle>
                                 <DialogDescription className="capitalize">
@@ -326,27 +518,26 @@ export default function SectionCard({ section, onEdit, onDelete, open, onOpenCha
             </CardHeader>
 
             <CardContent className="text-foreground wrap-break-words overflow-y-auto">
-                <Collapsible open={open} onOpenChange={onOpenChange} className="data-[state=open]:bg-primary rounded-md">
+                <Collapsible open={open} onOpenChange={onOpenChange} className="data-[state=open]:bg-background rounded-md">
                 
                     <CollapsibleTrigger asChild className="mb-2">
                         <Button 
                         variant="ghost" 
-                        className="group w-full bg-primary hover:bg-secondary hover:cursor-pointer" 
+                        className="group w-full rounded-none bg-primary-foreground hover:bg-secondary hover:cursor-pointer" 
                         aria-label="Expand Section"
                         >
                             View Section
                             <ChevronDownIcon className="ml-auto group-data-[state=open]:rotate-180" />
                         </Button>
                     </CollapsibleTrigger>
-
-                    <Separator orientation="horizontal" className="bg-secondary mb-2"/>
                     
                     <CollapsibleContent 
                         className="
-                            flex flex-col items-start gap-2 p-2.5 pt-0 text-xs font-instrument font-thin sm:text-sm
-                            [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:mb-4
-                            [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:mb-3
-                            [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mb-2
+                            flex flex-col items-start gap-2 p-2.5 pt-0 text-lg font-instrument
+                            [&_p]:min-h-[1em]
+                            [&_h1]:text-4xl [&_h1]:font-bold [&_h1]:mb-4
+                            [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:mb-3
+                            [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:mb-2
                             [&_ul]:list-disc [&_ul]:ml-6
                             [&_ol]:list-decimal [&_ol]:ml-6
                             [&_li]:my-1
@@ -355,8 +546,9 @@ export default function SectionCard({ section, onEdit, onDelete, open, onOpenCha
                     >
                         <div
                             ref={bodyRef}
-                            dangerouslySetInnerHTML={{__html: highlightedBodyHtml}}
-                        />
+                        >
+                            {highlightedBodyContent}
+                        </div>
                         <div className="mt-3 flex flex-row items-center gap-3 font-bold text-base text-secondary">
                             <p>Contributors:</p>
                             <AvatarGroup>

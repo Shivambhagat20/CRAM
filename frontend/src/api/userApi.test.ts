@@ -394,10 +394,10 @@ describe("getUserById", () => {
             status: 200,
             json: async () => ({
                 _id: "123",
-                user_name: "johnny",
+                username: "johnny",
                 email: "john@umanitoba.ca",
                 role: "student",
-                profile_pic: "avatar3"
+                profilePic: "avatar3"
             })
         } as unknown as Response);
 
@@ -438,10 +438,10 @@ describe("getUserById", () => {
             .mockResolvedValue({
             ok: true,
             json: async () => ({_id: "123",
-                user_name: "johnny",
+                username: "johnny",
                 email: "john@umanitoba.ca",
                 role: "student",
-                profile_pic: "avatar3"}),
+                profilePic: "avatar3"}),
             } as unknown as Response);
 
         await getUserById(validId);
