@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { resetPassword } from "@/api/userApi";
-import PasswordInput from "../ui/passwordInput";
+import PasswordInput from "../ui/PasswordInput";
 
 interface ChangePasswordFormProps {
     userId?: string;

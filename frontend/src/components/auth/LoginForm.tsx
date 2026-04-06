@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { loginUser, sendPasswordResetLink } from "@/api/userApi";
-import PasswordInput from "../ui/passwordInput";
+import PasswordInput from "../ui/PasswordInput";
 import { useAuth } from "@/hooks/useAuth";
 
 interface LoginFormProps {

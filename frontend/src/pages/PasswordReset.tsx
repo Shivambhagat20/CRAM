@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { resetPasswordWithToken } from "@/api/userApi";
-import PasswordInput from "@/components/ui/passwordInput";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 export default function PasswordReset() {
     const [searchParams] = useSearchParams();

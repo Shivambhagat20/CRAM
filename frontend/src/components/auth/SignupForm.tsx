@@ -3,7 +3,7 @@ import { Button } from "../ui/button";
 
 import { validateSignup } from "@/utils/validators";
 import { createUser, verifyEmail } from "@/api/userApi";
-import PasswordInput from "../ui/passwordInput";
+import PasswordInput from "../ui/PasswordInput";
 
 export default function SignupForm() {
     const [name, setName] = useState("");
