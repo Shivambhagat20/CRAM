@@ -64,7 +64,7 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
     }, [initialValues, form]);
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-         const { title, description, body } = values;
+        const { title, description, body } = values;
 
         try {
             setLoading(true);
@@ -94,9 +94,10 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
 
         } catch (error) {
             console.error("Submission failed", error);
-            if (error instanceof ApiError && error.status === 401){
+            if (error instanceof ApiError && error.status === 401) {
                 openAuthDialog("login");
-            }else{
+                setServerError(error.message ?? "Only logged-in users may create sections.");
+            } else {
                 setServerError(
                     error instanceof Error ? error.message : "Something went wrong."
                 );
