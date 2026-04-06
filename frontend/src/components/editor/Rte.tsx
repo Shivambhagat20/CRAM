@@ -41,8 +41,6 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
         title: z.string().min(5,{message: "Title is not long enough"}),
         description: z.string().min(5,{message: "Please add a longer description"}),
         body: z.string().min(10,{message:"Please add some more information"})
-        
-
     })
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -65,6 +63,7 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const { title, description, body } = values;
+        setServerError(null); // remove old errors
 
         try {
             setLoading(true);
@@ -168,6 +167,6 @@ export default function Rte({onSuccess, courseCode, mode, sectionId, initialValu
                 )}
             </form>
         </Form>
-      </div>  
+    </div>  
     );
 }
