@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 
 import { validateSignup } from "@/utils/validators";
 import { createUser, verifyEmail } from "@/api/userApi";
+import PasswordInput from "../ui/PasswordInput";
 
 export default function SignupForm() {
     const [name, setName] = useState("");
@@ -113,28 +114,16 @@ export default function SignupForm() {
                 </div>
 
                 <div className="flex flex-col gap-0">
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="font-funnel font-thin border-2 border-foreground rounded-sm p-1"
-                        required
-                    />
+                    <PasswordInput placeholder="Password" password={password} setPassword={setPassword} />
+
                     <p className={`font-instrument text-xs pl-1 italic ${password.length > 0 && password.length < 8 ? "text-destructive" : "text-secondary"}`}>
                         Password must be at least 8 characters
                     </p>
                 </div>
 
                 <div className="flex flex-col gap-0">
-                    <input
-                        type="password"
-                        placeholder="Confirm Password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="font-funnel font-thin border-2 border-foreground rounded-sm p-1"
-                        required
-                    />
+                    <PasswordInput placeholder="Confirm Password" password={confirmPassword} setPassword={setConfirmPassword} />
+
                     <p className={`font-instrument text-xs pl-1 italic ${confirmPassword.length > 0 && confirmPassword !== password ? "text-destructive" : "text-secondary"}`}>
                         Passwords must match
                     </p>

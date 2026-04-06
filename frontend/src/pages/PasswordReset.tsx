@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { resetPasswordWithToken } from "@/api/userApi";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 export default function PasswordReset() {
     const [searchParams] = useSearchParams();
@@ -65,28 +66,16 @@ export default function PasswordReset() {
 
                 <form className="flex flex-col gap-4" onSubmit={onSubmit}>
                     <div className="flex flex-col gap-0">
-                        <input
-                            type="password"
-                            placeholder="New password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            className="font-funnel font-thin border-2 border-foreground rounded-sm p-1"
-                            required
-                        />
+                        <PasswordInput placeholder="New password" password={newPassword} setPassword={setNewPassword} />
+
                         <p className={`font-instrument text-xs pl-1 italic ${newPassword.length > 0 && newPassword.length < 8 ? "text-destructive" : "text-secondary"}`}>
                             Password must be at least 8 characters
                         </p>
                     </div>
 
                     <div className="flex flex-col gap-0">
-                        <input
-                            type="password"
-                            placeholder="Confirm new password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="font-funnel font-thin border-2 border-foreground rounded-sm p-1"
-                            required
-                        />
+                        <PasswordInput placeholder="Confirm new password" password={confirmPassword} setPassword={setConfirmPassword} />
+                        
                         <p className={`font-instrument text-xs pl-1 italic ${confirmPassword.length > 0 && confirmPassword !== newPassword ? "text-destructive" : "text-secondary"}`}>
                             Passwords must match
                         </p>
