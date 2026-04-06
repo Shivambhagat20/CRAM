@@ -1314,8 +1314,6 @@ export default function Course() {
                 onSuccess={handleAddOrUpdateDefinition}
               />
 
-              <Separator orientation="horizontal" />
-
               <MemoizedDefinitionTable
                 definitions={sortedDefinitions}
                 onEdit={handleEditDefinitionOpen}
