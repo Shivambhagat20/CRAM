@@ -1,52 +1,46 @@
-const nodemailer = require('nodemailer');
-
-// Create reusable transporter using Gmail SMTP on port 587 (STARTTLS)
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-    tls: {
-        rejectUnauthorized: false,
-    },
-});
-
 /**
- * Send an email using the configured Gmail transporter
+ * Send an email using the Resend API (HTTP Port 443)
  * @param {Object} options - Email options
  * @param {string} options.to - Recipient email address
  * @param {string} options.subject - Email subject
  * @param {string} options.text - Plain text body
  * @param {string} options.html - HTML body
- * @returns {Promise<Object>} - Nodemailer send result
+ * @returns {Promise<Object>} - API response
  */
 exports.sendEmail = async ({ to, subject, text, html }) => {
-    const mailOptions = {
-        from: `"CRAM" <${process.env.EMAIL_USER}>`,
-        to,
-        subject,
-        text,
-        html,
-    };
+    const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+            from: `CRAM <${process.env.EMAIL_USER}>`,
+            to: [to],
+            subject: subject,
+            text: text,
+            html: html,
+        }),
+    });
 
-    const info = await transporter.sendMail(mailOptions);
-    return info;
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to send email via Resend');
+    }
+
+    return data;
 };
 
 /**
- * Verify that the email transporter connection is working
+ * Verify that the email service is ready (by checking if the API Key is present)
  * @returns {Promise<boolean>}
  */
 exports.verifyConnection = async () => {
-    try {
-        await transporter.verify();
-        console.log('Email service is ready');
-        return true;
-    } catch (error) {
-        console.error('Email service error:', error.message);
+    if (!process.env.RESEND_API_KEY) {
+        console.error('Email service error: RESEND_API_KEY is missing');
         return false;
     }
+    console.log('Email service (Resend) is ready');
+    return true;
 };
