@@ -132,27 +132,18 @@ exports.createUser = async (userData) => {
     const createdUser = await userRepository.createUser(newUser);
 
     // Send the verification email
-    if(process.env.NODE_ENV == "development" || process.env.NODE_ENV ==" production"){
-        await emailServices.sendEmail({
-            to: email,
-            subject: 'CRAM - Verify Your Email',
-            html: `
-                <div style="font-family: Arial, sans-serif; padding: 20px;">
-                    <h2 style="color: #4CAF50;">Welcome to CRAM!</h2>
-                    <p>Your 6-digit verification code is:</p>
-                    <h1 style="letter-spacing: 5px; color: #333; background: #f4f4f4; padding: 10px; display: inline-block; border-radius: 5px;">${verificationCode}</h1>
-                    <p>Enter this code in the app to verify your account.</p>
-                </div>
-            `
-        });
-        // don't return the code in the response in dev or prod to prevent abuse, but do return it in load testing so we can test the verification route
-        if(process.env.NODE_ENV != "loadtest" ){
-            delete createdUser.verificationCode;
-            delete createdUser.email;
-        }
-        delete createdUser.passwordHash;
-
-    }
+    await emailServices.sendEmail({
+        to: email,
+        subject: 'CRAM - Verify Your Email',
+        html: `
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #4CAF50;">Welcome to CRAM!</h2>
+                <p>Your 6-digit verification code is:</p>
+                <h1 style="letter-spacing: 5px; color: #333; background: #f4f4f4; padding: 10px; display: inline-block; border-radius: 5px;">${verificationCode}</h1>
+                <p>Enter this code in the app to verify your account.</p>
+            </div>
+        `
+    });
     return createdUser;
 }
 
