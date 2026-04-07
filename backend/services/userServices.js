@@ -4,15 +4,21 @@ const passwordServices = require('./passwordServices');
 const emailServices = require('./emailServices');
 const crypto = require('crypto');
 
-// get all user details except the password 
+// get all user details except the password and verification code 
 exports.getUserById = async (id) => {
     const user = await userRepository.findUserById(id);
     if (user) delete user.passwordHash;
-    if (process.env.NODE_ENV != "loadtest" ){
+    if (process.env.NODE_ENV != "loadtest") {
         delete user.verificationCode; 
         //might want to consider hiding emails, but currently implementation rely on it, maybe hide it from majority of users.
     }
     return user;
+}
+
+// get the user's verification code
+exports.getUserVerificationCode = async (id) => {
+    const user = await userRepository.findUserById(id);
+    return user.verificationCode;
 }
 
 // get multiple users details by ids
@@ -72,7 +78,9 @@ exports.confirmEmailChange = async (id, verificationCode) => {
 
     if (!user) throw new Error('Invalid user');
 
-    if (user.verificationCode !== verificationCode) {
+    const userVerificationCode = await this.getUserVerificationCode(id);
+
+    if (userVerificationCode !== verificationCode) {
         throw new Error('Invalid verification code');
     }
 
