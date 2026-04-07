@@ -15,7 +15,7 @@ exports.sendEmail = async ({ to, subject, text, html }) => {
             'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-            from: 'onboarding@resend.dev',
+            from: 'CRAM <noreply@cram-app.online>',
             to: [to],
             subject: subject,
             text: text,
