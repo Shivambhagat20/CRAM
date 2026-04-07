@@ -19,6 +19,8 @@ describe('User Integration Tests', () => {
     // 1. Wait for DB to connect BEFORE any tests start
     before(async () => {
         await connect();
+        process.env.NODE_ENV = "loadtest";
+
         mock.method(emailServices, 'sendEmail', async () => { });
     });
 

@@ -21,6 +21,7 @@ describe('Section Integration Tests', () => {
 
     before(async () => {
         await connect();
+        process.env.NODE_ENV = "loadtest";
 
         mock.method(emailServices, 'sendEmail', async () => { });
 

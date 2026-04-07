@@ -22,11 +22,10 @@ const sectionRoutes = require("./routes/sectionRoutes");
 const definitionRoutes = require("./routes/definitionRoutes");
 
 // Establishes connection to MongoDB Atlas
-let dbUrl = process.env.MONGO_URI;
-
-if (process.env.NODE_ENV === "loadtest") {
-  dbUrl = "mongodb://127.0.0.1:27017/test_db_load";
-}
+const dbUrl =
+  process.env.NODE_ENV === "loadtest"
+    ? "mongodb://127.0.0.1:27017/test_db_load"
+    : process.env.MONGO_URI;
 
 connectDB(dbUrl);
 

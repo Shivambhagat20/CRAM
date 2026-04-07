@@ -8,6 +8,10 @@ const crypto = require('crypto');
 exports.getUserById = async (id) => {
     const user = await userRepository.findUserById(id);
     if (user) delete user.passwordHash;
+    if (process.env.NODE_ENV != "loadtest" ){
+        delete user.verificationCode; 
+        //might want to consider hiding emails, but currently implementation rely on it, maybe hide it from majority of users.
+    }
     return user;
 }
 
@@ -128,7 +132,7 @@ exports.createUser = async (userData) => {
     const createdUser = await userRepository.createUser(newUser);
 
     // Send the verification email
-    if(process.env.NODE_ENV == "development"){
+    if(process.env.NODE_ENV == "development" || process.env.NODE_ENV ==" production"){
         await emailServices.sendEmail({
             to: email,
             subject: 'CRAM - Verify Your Email',
@@ -141,6 +145,13 @@ exports.createUser = async (userData) => {
                 </div>
             `
         });
+        // don't return the code in the response in dev or prod to prevent abuse, but do return it in load testing so we can test the verification route
+        if(process.env.NODE_ENV != "loadtest" ){
+            delete createdUser.verificationCode;
+            delete createdUser.email;
+        }
+        delete createdUser.passwordHash;
+
     }
     return createdUser;
 }
