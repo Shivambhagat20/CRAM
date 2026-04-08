@@ -181,27 +181,25 @@ function htmlToText(html: string): string {
 }
 
 
+// Escapes special regex character so a user's input can be safely used.
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 // Counts how many times a query appears in a given string.
-// Assumes both inputs are already lowercase.
+// Matches whole words only.
 function countOccurrencesInLowerText(
   lowerText: string,
   lowerQuery: string
 ): number {
   if (!lowerQuery) return 0;
 
-  let count = 0;
-  let startIndex = 0;
+  const regex = new RegExp(
+    `(^|[^A-Za-z0-9_])${escapeRegExp(lowerQuery)}(?=[^A-Za-z0-9_]|$)`,
+    "g"
+  );
 
-  // Loop through the string and count non-overlapping matches.
-  while (true) {
-    const matchIndex = lowerText.indexOf(lowerQuery, startIndex);
-    if (matchIndex === -1) break;
-
-    count += 1;
-    startIndex = matchIndex + lowerQuery.length;
-  }
-
-  return count;
+  return [...lowerText.matchAll(regex)].length;
 }
 
 // Breaks text into small chunks so search can narrow down "likely" matches first.
