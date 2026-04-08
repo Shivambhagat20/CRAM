@@ -39,6 +39,10 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function getWholeWordSearchRegex(query: string): RegExp {
+  return new RegExp(`(\\b${escapeRegExp(query.trim())}\\b)`, "gi");
+}
+
 // Renders text with search matches highlighted.
 // Specific occurrences get a stronger highlight.
 function HighlightedText({
@@ -53,7 +57,7 @@ function HighlightedText({
     return <>{text}</>;
   }
 
-  const regex = new RegExp(`(${escapeRegExp(trimmedQuery)})`, "gi");
+  const regex = getWholeWordSearchRegex(trimmedQuery);
   const parts = text.split(regex);
 
   return (
