@@ -83,13 +83,52 @@ function escapeRegExp(value: string) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function isWordChar(char: string | undefined) {
+    return !!char && /[A-Za-z0-9_]/.test(char);
+}
+
+function matchDefinitionAt(text: string, startIndex: number, term: string): number {
+    const normalizedTerm = term.trim();
+    if (!normalizedTerm) return 0;
+
+    const lowerText = text.toLowerCase();
+    const lowerTerm = normalizedTerm.toLowerCase();
+
+    const singular = lowerTerm;
+    const plural = `${lowerTerm}s`;
+
+    const candidates = [plural, singular]; // Prefer longer match first.
+
+    for (const candidate of candidates) {
+        if (!lowerText.startsWith(candidate, startIndex)) {
+            continue;
+        }
+
+        const charBefore = text[startIndex - 1];
+        const charAfter = text[startIndex + candidate.length];
+
+        const hasLeftBoundary = !isWordChar(charBefore);
+        const hasRightBoundary = !isWordChar(charAfter);
+
+        if (hasLeftBoundary && hasRightBoundary) {
+            return candidate.length;
+        }
+    }
+
+    return 0;
+}
+
+function getWholeWordSearchRegex(query: string) {
+    const safeQuery = escapeRegExp(query.trim());
+    return new RegExp(`(\\b${safeQuery}\\b)`, "gi");
+}
+
 // Highlights matches in simple text (sections titles and descriptions).
 function highlightText(text: string, query: string) {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) return text;
 
-    const safeQuery = escapeRegExp(trimmedQuery);
-    const regex = new RegExp(`(${safeQuery})`, "gi");
+    const regex = getWholeWordSearchRegex(trimmedQuery);
     const parts = text.split(regex);
 
     return parts.map((part, index) =>
@@ -114,8 +153,7 @@ function splitTextIntoSearchPieces(text: string, query: string): TextPiece[] {
         return [{ text, isSearchMatch: false }];
     }
 
-    const safeQuery = escapeRegExp(trimmedQuery);
-    const regex = new RegExp(`(${safeQuery})`, "gi"); // Global and Case-insensitive.
+    const regex = getWholeWordSearchRegex(trimmedQuery);
     const parts = text.split(regex);
 
     return parts
@@ -149,8 +187,6 @@ function renderSearchPieces(pieces: TextPiece[], keyPrefix: string) {
 function buildTextSegments(text: string, query: string, definitions: Definition[]): TextSegment[] {
     if (!text) return [];
 
-    const lowerText = text.toLowerCase();
-
     // Sort definitions by length so longer matches win.
     const sortedDefinitions = [...definitions]
         .filter((definition) => (definition.term ?? "").trim().length > 0)
@@ -168,11 +204,11 @@ function buildTextSegments(text: string, query: string, definitions: Definition[
             const term = (definition.term ?? "").trim();
             if (!term) continue;
 
-            const lowerTerm = term.toLowerCase();
+            const matchLength = matchDefinitionAt(text, cursor, term);
 
-            if (lowerText.startsWith(lowerTerm, cursor)) {
+            if (matchLength > 0) {
                 matchedDefinition = definition;
-                matchedDefinitionLength = term.length;
+                matchedDefinitionLength = matchLength;
                 break;
             }
         }
@@ -201,7 +237,7 @@ function buildTextSegments(text: string, query: string, definitions: Definition[
                 const term = (definition.term ?? "").trim();
                 if (!term) continue;
 
-                if (lowerText.startsWith(term.toLowerCase(), nextCursor)) {
+                if (matchDefinitionAt(text, nextCursor, term) > 0) {
                     startsDefinition = true;
                     break;
                 }
