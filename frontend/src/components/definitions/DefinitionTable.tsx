@@ -87,23 +87,26 @@ function HighlightedText({
 
   const regex = getWholeWordSearchRegex(trimmedQuery);
   const parts = text.split(regex);
-  let seenMatches = -1;
+  const normalizedQuery = trimmedQuery.toLowerCase();
 
   return (
     <>
       {parts.map((part, index) => {
-        const isMatch = part.toLowerCase() === trimmedQuery.toLowerCase();
+        const isMatch = part.toLowerCase() === normalizedQuery;
 
         if (!isMatch) {
           return <Fragment key={`${part}-${index}`}>{part}</Fragment>;
         }
 
-        seenMatches += 1;
+        const currentMatchIndex = parts
+          .slice(0, index + 1)
+          .filter((candidate) => candidate.toLowerCase() === normalizedQuery)
+          .length - 1;
 
         const isActiveMatch =
           isActiveField &&
           activeOccurrenceIndex !== null &&
-          seenMatches === activeOccurrenceIndex;
+          currentMatchIndex === activeOccurrenceIndex;
 
         return (
           <mark
