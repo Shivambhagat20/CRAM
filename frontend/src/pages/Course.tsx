@@ -389,7 +389,7 @@ export default function Course() {
   const [activeResultIndex, setActiveResultIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const lastRepeatedNavigationAtRef = useRef(0);
-  const debouncedQuery = useDebouncedValue(query, 120);
+  const debouncedQuery = useDebouncedValue(query, 150);
 
   // Sorting
   type SortMode = "alphabetical-asc" | "alphabetical-desc";
