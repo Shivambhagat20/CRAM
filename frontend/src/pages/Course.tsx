@@ -180,12 +180,6 @@ function htmlToText(html: string): string {
   return temp.textContent || temp.innerText || "";
 }
 
-
-// Escapes special regex character so a user's input can be safely used.
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 // Counts how many times a query appears in a given string.
 // Matches whole words only.
 function countOccurrencesInLowerText(
@@ -194,12 +188,40 @@ function countOccurrencesInLowerText(
 ): number {
   if (!lowerQuery) return 0;
 
-  const regex = new RegExp(
-    `(^|[^A-Za-z0-9_])${escapeRegExp(lowerQuery)}(?=[^A-Za-z0-9_]|$)`,
-    "g"
-  );
+  let count = 0;
+  let index = 0;
 
-  return [...lowerText.matchAll(regex)].length;
+  while (true) {
+    index = lowerText.indexOf(lowerQuery, index);
+    if (index === -1) break;
+
+    const charBefore = lowerText[index - 1];
+    const charAfter = lowerText[index + lowerQuery.length];
+
+    const isLeftBoundary =
+      !charBefore || !/[A-Za-z0-9_]/.test(charBefore);
+    const isRightBoundary =
+      !charAfter || !/[A-Za-z0-9_]/.test(charAfter);
+
+    if (isLeftBoundary && isRightBoundary) {
+      count++;
+    }
+
+    index += lowerQuery.length;
+  }
+
+  return count;
+}
+
+function useDebouncedValue<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const id = globalThis.setTimeout(() => setDebounced(value), delay);
+    return () => globalThis.clearTimeout(id);
+  }, [value, delay]);
+
+  return debounced;
 }
 
 // Breaks text into small chunks so search can narrow down "likely" matches first.
@@ -367,6 +389,7 @@ export default function Course() {
   const [activeResultIndex, setActiveResultIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const lastRepeatedNavigationAtRef = useRef(0);
+  const debouncedQuery = useDebouncedValue(query, 120);
 
   // Sorting
   type SortMode = "alphabetical-asc" | "alphabetical-desc";
@@ -641,7 +664,7 @@ export default function Course() {
   // - Tracks which field matched
   // - Tracks occurrence index for highlighting specific matches
   const searchResults = useMemo<GroupedSearchResult[]>(() => {
-    const trimmed = query.trim();
+    const trimmed = debouncedQuery.trim();
     const lowerQuery = trimmed.toLowerCase();
 
     if (!lowerQuery) {
@@ -661,6 +684,14 @@ export default function Course() {
     // Search through sections.
     searchableSections.forEach((section) => {
       if (sectionCandidates !== null && !sectionCandidates.has(section.raw._id)) {
+        return;
+      }
+
+      if (
+        !section.titleLower.includes(lowerQuery) &&
+        !section.descriptionLower.includes(lowerQuery) &&
+        !section.bodyTextLower.includes(lowerQuery)
+      ) {
         return;
       }
 
@@ -696,6 +727,14 @@ export default function Course() {
         return;
       }
 
+      if (
+        !definition.termLower.includes(lowerQuery) &&
+        !definition.definitionLower.includes(lowerQuery) &&
+        !definition.exampleLower.includes(lowerQuery)
+      ) {
+        return;
+      }
+
       const counts: DefinitionFieldMatchCounts = {
         term: countOccurrencesInLowerText(definition.termLower, lowerQuery),
         definition: countOccurrencesInLowerText(
@@ -720,9 +759,9 @@ export default function Course() {
     });
 
     return results;
-  }, [query, searchableSections, searchableDefinitions, searchIndex]);
+  }, [debouncedQuery, searchableSections, searchableDefinitions, searchIndex]);
 
-  const isSearching = query.trim().length > 0;
+  const isSearching = debouncedQuery.trim().length > 0;
 
   const totalSearchResults = useMemo<number>(() => {
     return searchResults.reduce((sum, result) => sum + result.total, 0);
@@ -1041,7 +1080,7 @@ export default function Course() {
             </div>
 
             {/* Search navigation */}
-            {query && (
+            {isSearching && (
               <div className="flex items-center justify-end gap-2 ">
                 <span className="text-xs text-muted-foreground">
                   {totalSearchResults > 0
@@ -1260,7 +1299,7 @@ export default function Course() {
                       key={section._id}
                       section={section}
                       definitions={definitions}
-                      query={query}
+                      query={debouncedQuery}
                       isMatch={isMatch}
                       isOpen={isOpen}
                       isActiveMatch={isActiveMatch}
@@ -1315,7 +1354,7 @@ export default function Course() {
                 definitions={sortedDefinitions}
                 onEdit={handleEditDefinitionOpen}
                 onDelete={handleDeleteDefinition}
-                searchQuery={query}
+                searchQuery={debouncedQuery}
                 activeDefinitionId={activeDefinitionResult?.definitionId ?? null}
                 activeField={activeDefinitionResult?.field ?? null}
                 activeOccurrenceIndex={
