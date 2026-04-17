@@ -32,12 +32,14 @@ export default function ChangeEmailForm({ userId, changeEmail: changeEmailOpen, 
 
     // reset states when button is clicked
     useEffect(() => {
-        setServerError(null);
-        setSuccessMessage(null);
-        setLoading(false);
-        setNewEmail("");
-        setVerificationCode("");
-        setCodeSent(false);
+        if(changeEmailOpen){
+            setServerError(null);
+            setSuccessMessage(null);
+            setLoading(false);
+            setNewEmail("");
+            setVerificationCode("");
+            setCodeSent(false);
+        }
     }, [changeEmailOpen]);
 
     if (!userId) return;
