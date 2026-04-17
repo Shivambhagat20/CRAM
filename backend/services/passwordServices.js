@@ -13,7 +13,7 @@ exports.hashPassword = async (password) => {
 
     }catch (err){
         err.message = 'Error hashing password';
-        throw new Error(err);        
+        throw new Error(err, { cause: err });        
     }
 }
 

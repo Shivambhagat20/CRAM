@@ -29,6 +29,7 @@ export default function ChangeUsernameForm({ userId, changeUsername, profileUser
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // reset states when button is clicked
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         setServerError(null);
         setSuccessMessage(null);

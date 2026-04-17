@@ -8,7 +8,7 @@ const crypto = require('crypto');
 exports.getUserById = async (id) => {
     const user = await userRepository.findUserById(id);
     if (user) delete user.passwordHash;
-    if (process.env.NODE_ENV != "loadtest") {
+    if (process.env.NODE_ENV !== "loadtest") {
         delete user.verificationCode; 
         //might want to consider hiding emails, but currently implementation rely on it, maybe hide it from majority of users.
     }
