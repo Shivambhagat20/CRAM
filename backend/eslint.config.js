@@ -1,12 +1,12 @@
-import js from "@eslint/js";
-import globals from "globals";
+const js = require("@eslint/js");
+const globals = require("globals");
 
-export default [
+module.exports = [
   js.configs.recommended,
   {
     languageOptions: {
       ecmaVersion: "latest",
-      sourceType: "module",  
+      sourceType: "commonjs",  
       globals: {
         ...globals.node,
       }
