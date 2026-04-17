@@ -1,10 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "lint": "eslint .",
     "test": "node --test",
     "test:newLoad": "concurrently \"npx cross-env PORT=5001 NODE_ENV=loadtest MONG_LT=1 SESSION_SECRET=testing123 node server.js\" \"npx artillery run tests/load/livetest.yml\""
   },
@@ -30,7 +32,10 @@
     "supertest": "^7.2.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@stryker-mutator/core": "^9.6.0",
-    "cross-env": "^10.1.0"
+    "cross-env": "^10.1.0",
+    "eslint": "^10.2.0",
+    "globals": "^17.5.0"
   }
 }
