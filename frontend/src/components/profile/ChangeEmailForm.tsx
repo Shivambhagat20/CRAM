@@ -31,6 +31,7 @@ export default function ChangeEmailForm({ userId, changeEmail: changeEmailOpen, 
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // reset states when button is clicked
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         setServerError(null);
         setSuccessMessage(null);

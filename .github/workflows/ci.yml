@@ -36,7 +36,7 @@ jobs:
       - name: Run Lint
         run: |
           cd backend
-          # npm run lint (Uncomment this once you have a lint script in package.json)
+          npm run lint
           echo "Backend linting complete"
 
       - name: Run Tests
